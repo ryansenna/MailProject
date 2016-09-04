@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package com.rsenna.business;
+
 import java.io.File;
 import java.util.List;
 
@@ -30,27 +31,87 @@ import jodd.mail.SmtpSslServer;
  * @author 1333612
  */
 public class Mail {
-    
+
     // Real programmers use logging
     private final Logger log = LoggerFactory.getLogger(getClass().getName());
-    
+
     // These must be updated to your email accounts
-    private final String smtpServerName = "smtp.gmail.com"; // must take when the user types in the login page.
-    private final String imapServerName = "imap.gmail.com"; // "" 
-    private final String emailSend = "sender.rsenna@gmail.com"; // must take in the user login.
-    private final String emailSendPwd = "thisistest"; // must take in the user login.
-    private final String emailReceive = "jessesend@gmail.com"; // must take in the "to" field
-    private final String emailReceivePwd = "";// test purposes.
+    private final String smtpServerName; // must take when the user types in the login page.
+    private final String imapServerName; // "" 
+    private final String emailSend; // must take in the user login.
+    private final String emailSendPwd; // must take in the user login.
+    private final String emailReceive; // must take in the "to" field
+    private final String emailReceivePwd;// test purposes.
     private final String emailCC1 = "";// list of emails
     private final String emailCC2 = "";// list of emails.
-    
+
     private String subject = "";// subject of the message sent.
     private String content = "";// content of the message sent.
-    
-    
-        // You will need a folder with this name or change it to another
+
+    // You will need a folder with this name or change it to another
     // existing folder
     private final String attachmentFolder = "C:\\Temp\\Attach\\";
+
+    public Mail(String smtpServerName, String imapServerName, String emailSend,
+            String emailSendPwd, String emailReceive, String emailReceivePwd) {
+        
+        this.smtpServerName = smtpServerName;
+        this.imapServerName = imapServerName;
+        this.emailSend = emailSend;
+        this.emailSendPwd = emailSendPwd;
+        this.emailReceive = emailReceive;
+        this.emailReceivePwd = emailReceivePwd;
+
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    /// ************** LIST OF GETTERS ***************
+    public String getSmtpServerName() {
+        if (smtpServerName.isEmpty()) {
+            throw new IllegalArgumentException("The smtp server name is not specified.");
+        }
+        return smtpServerName;
+    }
+
+    public String getImapServerName() {
+        if (imapServerName.isEmpty()) {
+            throw new IllegalArgumentException("The imap server name is not specified.");
+        }
+        return imapServerName;
+    }
+
+    public String getEmailSend() {
+        if (emailSend.isEmpty()) {
+            throw new IllegalArgumentException("The sender email is not specified.");
+        }
+        return emailSend;
+    }
+
+    public String getEmailSendPwd() {
+
+        if (emailSendPwd.isEmpty()) {
+            throw new IllegalArgumentException("The sender email psword is not specified.");
+        }
+        return emailSendPwd;
+    }
+
+    public String getEmailReceive() {
+        if (emailReceive.isEmpty()) {
+            throw new IllegalArgumentException("The receive email is not specified.");
+        }
+        return emailReceive;
+    }
+
+    public String getEmailReceivePwd() {
+
+        if (emailReceivePwd.isEmpty()) {
+            throw new IllegalArgumentException("The receive email psword is not specified.");
+        }
+        return emailReceivePwd;
+    }
 
     /**
      * This method is where the different uses of Jodd are exercised
@@ -69,15 +130,15 @@ public class Mail {
         SmtpServer<SmtpSslServer> smtpServer = SmtpSslServer
                 .create(smtpServerName)
                 .authenticateWith(emailSend, emailSendPwd);
-        
+
         // Display Java Mail debug conversation with the server
         smtpServer.debug(true);
-        
+
         // Using the fluent style of coding create a plain text message
         Email email = Email.create().from(emailSend)
                 .to(emailReceive)
                 .subject(getSubject()).addText(getContent());
-        
+
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
 
@@ -87,43 +148,35 @@ public class Mail {
         session.sendMail(email);
         session.close();
     }
+
     /**
      * This Method will get the subject field from the user.
+     *
      * @return subject
      */
-    public String getSubject()
-    {
+    public String getSubject() {
         return subject;
     }
-    
+
     /**
      * This method will get the Text field from the user.
+     *
      * @return plainTxt
      */
-    public String getContent()
-    {
+    public String getContent() {
         return content;
     }
+
     /**
      * Whatever i receive from outside application will be put here.
+     *
      * @param subject the subject of the email.
      */
-    public void setSubject(String subject)
-    {
-        if (subject.length() > 78)
-        {
-            throw new
-                IllegalArgumentException("The Length must be not above 78.");
+    public void setSubject(String subject) {
+        if (subject.length() > 78) {
+            throw new IllegalArgumentException("The Length must be not above 78.");
         }
         this.subject = subject;
-    }
-    /**
-     * Whatever I receive from outside application will be put here.
-     * @param plainTxt the content of the email.
-     */
-    public void setPlainTxt(String plainTxt)
-    {
-        this.content = plainTxt;
     }
 
     /**
@@ -152,5 +205,4 @@ public class Mail {
 
     }
 
-    
 }
