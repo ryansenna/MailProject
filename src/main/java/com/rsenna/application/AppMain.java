@@ -14,24 +14,24 @@ import java.util.Scanner;
  */
 public class AppMain {
 
-    private static Mail m = new Mail();
     private static String login, pwd = "";
     private static String subject = "";
     private static String content = "";
 
     public static void main(String[] args) {
+        String smtpServerName = "smtp.gmail.com";
+        String imapServerName = "imap.gmail.com";
+        String emailSend = "sender.rsenna@gmail.com";
+        String emailSendPwd = "thisistest";
+        String emailReceive = "receiver.rsenna@gmail.com";
+        String emailReceivePwd = "thisistest";
 
-        //promptLogin();
-        promptSubject();
-        promptTxt();
-        
-        m.setSubject(subject);
-        m.setPlainTxt(content);
-        
+        Mail m = new Mail(smtpServerName, imapServerName, emailSend, emailSendPwd, emailReceive, emailReceivePwd);
+        m.setSubject("Hello World");
+        m.setContent("Hi I do exist.");
         m.sendEmail();
-        System.exit(0);
-    }
 
+    }
 
     private static void promptLogin() {
 
