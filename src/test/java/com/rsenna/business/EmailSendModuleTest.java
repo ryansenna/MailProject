@@ -24,7 +24,7 @@ public class EmailSendModuleTest {
         MailAddress[] ma = {new MailAddress("receiver.rsenna@gmail.com")};
         esm.send("Hello World", "I am Ryan Sena", ma);
         
-        assertEquals(true,true);
+        assertEquals(true,false);
     }
     
 }
