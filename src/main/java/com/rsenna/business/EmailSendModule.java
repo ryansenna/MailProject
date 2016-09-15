@@ -26,10 +26,15 @@ import jodd.mail.SendMailSession;
 import jodd.mail.SmtpServer;
 import jodd.mail.SmtpSslServer;
 
+import com.rsenna.business.RyanEmail;
+import jodd.util.MimeTypes;
+
 /**
  *
  * @author 1333612
  */
+
+
 public class EmailSendModule {
 
     // Real programmers use logging
@@ -93,7 +98,7 @@ public class EmailSendModule {
      * Standard send routine using Jodd. Jodd knows about GMail so no need to
      * include port information
      */
-    public void send(String subject, String content, String emailReceive) {
+    public RyanEmail send(String subject, String content, MailAddress[] receiveEmail) {
 
         //VALIDATE BOTH PARAMS HERE.
         // Create am SMTP server object
@@ -105,9 +110,15 @@ public class EmailSendModule {
         smtpServer.debug(true);
 
         // Using the fluent style of coding create a plain text message
-        Email email = Email.create().from(emailAddress)
-                .to(emailReceive)
-                .subject(subject).addText(content);
+        RyanEmail email = new RyanEmail();
+        MailAddress sendAddress = new MailAddress(emailAddress);
+        EmailMessage textMessage = new EmailMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        
+        email.setFrom(sendAddress);
+        email.setTo(receiveEmail);
+        email.setSubject(subject);
+        email.addMessage(textMessage);
+       
 
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
@@ -117,6 +128,8 @@ public class EmailSendModule {
         session.open();
         session.sendMail(email);
         session.close();
+        
+        return email;
     }
 
     /**
@@ -126,7 +139,7 @@ public class EmailSendModule {
      * @throws Exception In case we don't find the file to attach/embed
      */
     public void sendWithEmbedded(String subject, String content,
-            String fileEmbeddedPath, String emailReceive) throws Exception {
+            String[] fileEmbeddedPath, MailAddress[] emailReceive) throws Exception {
 
         // Create am SMTP server object
         SmtpServer<SmtpSslServer> smtpServer = SmtpSslServer
@@ -136,12 +149,23 @@ public class EmailSendModule {
         smtpServer.debug(true);
 
         // Using the fluent style of coding create an html message
-        Email email = Email.create().from(emailAddress)
-                .to(emailReceive)
-                .subject(subject)
-                .addText(content)
-                .embed(EmailAttachment.attachment()
-                        .bytes(new File(fileEmbeddedPath)));
+        
+        RyanEmail email = new RyanEmail();
+        MailAddress sendAddress = new MailAddress(emailAddress);
+        EmailMessage textMessage = new EmailMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        //EmailAttachment embeddedAttachment = new ByteArrayAttachment
+        
+        email.setFrom(sendAddress);
+        email.setTo(emailReceive);
+        email.setSubject(subject);
+        email.addMessage(textMessage);
+        //email.
+        //Email email = Email.create().from(emailAddress)
+        //        .to(emailReceive)
+        //        .subject(subject)
+        //        .addText(content)
+       //         .embed(EmailAttachment.attachment()
+       //                 .bytes(new File(fileEmbeddedPath)));
 
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
