@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import jodd.mail.Email;
 import jodd.mail.EmailAttachment;
+import jodd.mail.EmailAttachmentBuilder;
 import jodd.mail.EmailMessage;
 import jodd.mail.MailAddress;
 
@@ -19,6 +20,7 @@ import jodd.mail.MailAddress;
  * @author 1333612
  */
 public class RyanEmail extends Email {
+    
 
     public ArrayList<EmailAttachment> getAttachments() {
         return attachments;
@@ -132,5 +134,7 @@ public class RyanEmail extends Email {
         this.sentDate = sentDate;
     }
     
+    
+
     
 }

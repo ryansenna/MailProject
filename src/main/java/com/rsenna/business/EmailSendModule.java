@@ -26,10 +26,18 @@ import jodd.mail.SendMailSession;
 import jodd.mail.SmtpServer;
 import jodd.mail.SmtpSslServer;
 
+import com.rsenna.business.RyanEmail;
+import jodd.io.FileUtil;
+import jodd.mail.att.ByteArrayAttachment;
+import jodd.mail.att.FileAttachment;
+import jodd.util.MimeTypes;
+
 /**
  *
  * @author 1333612
  */
+
+
 public class EmailSendModule {
 
     // Real programmers use logging
@@ -39,6 +47,9 @@ public class EmailSendModule {
     private String smtpServerName;
     private String emailAddress;
     private String emailPwd;
+    
+    private RyanEmail email;
+    private EmailMessage textMessage;
 
     // You will need a folder with this name or change it to another
     // existing folder
@@ -49,6 +60,11 @@ public class EmailSendModule {
         setEmailAddress(sendEmailAddress);
         setEmailPwd(sendEmailPassword);
     }
+    
+   public static void create()
+   {
+       
+   }
 
     /// ************** LIST OF GETTERS ***************
     public String getSmtpServerName() {
@@ -60,9 +76,6 @@ public class EmailSendModule {
     }
 
     public String getEmailSend() {
-        if (emailAddress.isEmpty()) {
-            throw new IllegalArgumentException("The sender email is not specified.");
-        }
         return emailAddress;
     }
 
@@ -77,7 +90,7 @@ public class EmailSendModule {
     
     private void setSmtpServerName(String sendEmailAddress) {
         this.smtpServerName = "smtp."
-                + sendEmailAddress.substring(sendEmailAddress.indexOf("@"));
+                + sendEmailAddress.substring(sendEmailAddress.indexOf("@")+1);
     }
 
     private void setEmailAddress(String sendEmailAddress) {
@@ -93,7 +106,7 @@ public class EmailSendModule {
      * Standard send routine using Jodd. Jodd knows about GMail so no need to
      * include port information
      */
-    public void send(String subject, String content, String emailReceive) {
+    public RyanEmail send(String subject, String content, MailAddress[] receiveEmail) {
 
         //VALIDATE BOTH PARAMS HERE.
         // Create am SMTP server object
@@ -104,10 +117,15 @@ public class EmailSendModule {
         // Display Java Mail debug conversation with the server
         smtpServer.debug(true);
 
-        // Using the fluent style of coding create a plain text message
-        Email email = Email.create().from(emailAddress)
-                .to(emailReceive)
-                .subject(subject).addText(content);
+        textMessage = new EmailMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+       MailAddress sendAddress = new MailAddress(getEmailSend());
+        email = new RyanEmail();
+        //create the email with the values.
+        email.setFrom(sendAddress);
+        email.setTo(receiveEmail);
+        email.setSubject(subject);
+        email.addMessage(textMessage);
+       
 
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
@@ -117,6 +135,8 @@ public class EmailSendModule {
         session.open();
         session.sendMail(email);
         session.close();
+        
+        return email;
     }
 
     /**
@@ -125,8 +145,8 @@ public class EmailSendModule {
      *
      * @throws Exception In case we don't find the file to attach/embed
      */
-    public void sendWithEmbedded(String subject, String content,
-            String fileEmbeddedPath, String emailReceive) throws Exception {
+    public RyanEmail sendWithEmbedded(String subject, String content,
+            String fileEmbeddedPath, MailAddress[] emailReceive) throws Exception {
 
         // Create am SMTP server object
         SmtpServer<SmtpSslServer> smtpServer = SmtpSslServer
@@ -136,13 +156,31 @@ public class EmailSendModule {
         smtpServer.debug(true);
 
         // Using the fluent style of coding create an html message
-        Email email = Email.create().from(emailAddress)
-                .to(emailReceive)
-                .subject(subject)
-                .addText(content)
-                .embed(EmailAttachment.attachment()
-                        .bytes(new File(fileEmbeddedPath)));
-
+        
+        email = new RyanEmail();
+        MailAddress sendAddress = new MailAddress(getEmailSend());
+        //setting up the embedded image.
+        String html = "<html><META http-equiv=Content-Type "
+                        + "content=\"text/html; charset=utf-8\">"
+                        + "<body><img src="+fileEmbeddedPath+">"
+                        + "</body></html>";
+        
+        textMessage = new EmailMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        
+        EmailMessage htmlMessage = new EmailMessage(html, MimeTypes.MIME_TEXT_HTML);
+        
+        EmailAttachment embeddedAttachment = new ByteArrayAttachment(
+        FileUtil.readBytes(fileEmbeddedPath),fileEmbeddedPath,fileEmbeddedPath,fileEmbeddedPath); // possible erros here.
+        
+        embeddedAttachment.setEmbeddedMessage(htmlMessage);
+        
+        //setting up the email.
+        email.setFrom(sendAddress);
+        email.setTo(emailReceive);
+        email.setSubject(subject);
+        email.addMessage(textMessage);
+        email.addMessage(htmlMessage);
+        email.attach(embeddedAttachment);
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
 
@@ -151,11 +189,13 @@ public class EmailSendModule {
         session.open();
         session.sendMail(email);
         session.close();
+        
+        return email;
 
     }
 
-    public void sendWithAttachment(String subject, String content,
-            String emailReceive, String fileAttachmentPath) throws Exception {
+    public RyanEmail sendWithAttachment(String subject, String content,
+            MailAddress[] emailReceive, String fileAttachmentPath) throws Exception {
 
         // Create am SMTP server object
         SmtpServer<SmtpSslServer> smtpServer = SmtpSslServer
@@ -163,13 +203,30 @@ public class EmailSendModule {
                 emailPwd);
 
         smtpServer.debug(true);
-
+        
+        email = new RyanEmail();
+        //set up the message
+        textMessage = new EmailMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        //set up the attachment
+        EmailAttachment attachment = 
+                new FileAttachment(new File(fileAttachmentPath),
+                fileAttachmentPath,fileAttachmentPath);// possible errors
+        //setting up the email
+        MailAddress sendAddress = new MailAddress(getEmailSend());
+        email.setFrom(sendAddress);
+        email.setTo(emailReceive);
+        email.setSubject(subject);
+        email.addMessage(textMessage);
+        email.attach(attachment);
+        
+        
+        
         // Using the fluent style of coding create an html message
-        Email email = Email.create().from(emailAddress)
-                .to(emailReceive)
-                .subject(subject)
-                .addText(content)
-                .attach(EmailAttachment.attachment().file(fileAttachmentPath));
+        //Email email = Email.create().from(emailAddress)
+        //        .to(emailReceive)
+        //        .subject(subject)
+        //        .addText(content)
+       //         .attach(EmailAttachment.attachment().file(fileAttachmentPath));
 
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
@@ -179,7 +236,8 @@ public class EmailSendModule {
         session.open();
         session.sendMail(email);
         session.close();
-
+        
+        return email;
     }
 
     /**
@@ -188,9 +246,9 @@ public class EmailSendModule {
      *
      * @throws Exception In case we don't find the file to attach/embed
      */
-    public void sendWithEmbeddedAndAttachment(String subject,
-            String emailReceive, String content,
-            String fileAttachmentPath, String fileEmbededPath) throws Exception {
+    public RyanEmail sendWithEmbeddedAndAttachment(String subject,
+            MailAddress[] emailReceive, String content,
+            String fileAttachmentPath, String fileEmbeddedPath) throws Exception {
 
         // Create am SMTP server object
         SmtpServer<SmtpSslServer> smtpServer = SmtpSslServer
@@ -198,15 +256,47 @@ public class EmailSendModule {
                 emailPwd);
 
         smtpServer.debug(true);
-
+        
+        email = new RyanEmail();
+        MailAddress sendAddress = new MailAddress(getEmailSend());
+        //set up the message
+        textMessage = new EmailMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        //setting up the embedded image.
+        String html = "<html><META http-equiv=Content-Type "
+                        + "content=\"text/html; charset=utf-8\">"
+                        + "<body><img src="+fileEmbeddedPath+">"
+                        + "</body></html>";
+        
+        EmailMessage htmlMessage = new EmailMessage(html, MimeTypes.MIME_TEXT_HTML);
+        
+        EmailAttachment embeddedAttachment = new ByteArrayAttachment(
+        FileUtil.readBytes(fileEmbeddedPath),fileEmbeddedPath,fileEmbeddedPath,fileEmbeddedPath); // possible erros here.
+       
+        embeddedAttachment.setEmbeddedMessage(htmlMessage);
+        
+        //setting up the Attachment
+                //set up the attachment
+        EmailAttachment attachment = 
+                new FileAttachment(new File(fileAttachmentPath),
+                fileAttachmentPath,fileAttachmentPath);// possible errors
+        
+        //set up the email
+        email.setFrom(sendAddress);
+        email.setTo(emailReceive);
+        email.setSubject(subject);
+        email.addMessage(textMessage);
+        email.addMessage(htmlMessage);
+        email.attach(embeddedAttachment);
+        email.attach(attachment);
+        
         // Using the fluent style of coding create an html message
-        Email email = Email.create().from(emailAddress)
-                .to(emailReceive)
-                .subject(subject)
-                .addText(content)
-                .embed(EmailAttachment.attachment()
-                        .bytes(new File(fileEmbededPath)))
-                .attach(EmailAttachment.attachment().file(fileAttachmentPath));
+       // Email email = Email.create().from(emailAddress)
+       //         .to(emailReceive)
+       //         .subject(subject)
+       //         .addText(content)
+      //          .embed(EmailAttachment.attachment()
+     //                   .bytes(new File(fileEmbededPath)))
+      //         .attach(EmailAttachment.attachment().file(fileAttachmentPath));
 
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
@@ -216,6 +306,8 @@ public class EmailSendModule {
         session.open();
         session.sendMail(email);
         session.close();
+        
+        return email;
     }
 
 }
