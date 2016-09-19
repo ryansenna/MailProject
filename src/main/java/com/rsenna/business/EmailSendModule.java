@@ -118,7 +118,7 @@ public class EmailSendModule {
         smtpServer.debug(true);
 
         textMessage = new EmailMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-       MailAddress sendAddress = new MailAddress(getEmailSend());
+        MailAddress sendAddress = new MailAddress(getEmailSend());
         email = new RyanEmail();
         //create the email with the values.
         email.setFrom(sendAddress);

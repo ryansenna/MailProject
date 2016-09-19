@@ -95,6 +95,7 @@ public class RyanEmail extends Email {
     }
 
     public void setFrom(MailAddress from) {
+        
         this.from = from;
     }
 
