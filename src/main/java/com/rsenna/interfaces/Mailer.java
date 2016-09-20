@@ -32,6 +32,11 @@ public interface Mailer {
             MailAddress[] receive,
             Optional<MailAddress[]> cc,
             Optional<MailAddress[]> bcc);
+    public RyanEmail sendWithEmbeddedAndAttachments(String subject,
+            String content, MailAddress[] receive,
+            Optional<String> fileAttachPath, Optional<String> embeddedPath,
+            Optional<MailAddress[]> cc,
+            Optional<MailAddress[]> bcc) throws Exception;
     /**
      * This method will carry out IMAP conversations with the server.
      * It will read messages from the server into the application.

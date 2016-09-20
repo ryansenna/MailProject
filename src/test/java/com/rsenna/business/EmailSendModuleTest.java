@@ -8,6 +8,8 @@ package com.rsenna.business;
 import org.junit.Test;
 import com.rsenna.business.*;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jodd.mail.EmailAddress;
 import jodd.mail.MailAddress;
 import static org.junit.Assert.assertEquals;
@@ -69,6 +71,7 @@ public class EmailSendModuleTest {
 
         assertEquals(true, true);
     }
+
     @Ignore
     @Test
     public void testSendWithBoth() {
@@ -77,8 +80,8 @@ public class EmailSendModuleTest {
                 = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
-                MailAddress[] cc
-                = { new MailAddress("railanderson@gmail.com")};
+        MailAddress[] cc
+                = {new MailAddress("railanderson@gmail.com")};
         MailAddress[] bcc
                 = {new MailAddress("receiver.rsenna@gmail.com"),
                     new MailAddress("railanderson@gmail.com")
@@ -88,6 +91,26 @@ public class EmailSendModuleTest {
                 Optional.of(bcc));
 
         assertEquals(true, true);
+    }
+
+    @Test
+    public void testSendWithEmbedded() {
+
+        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
+        ActionBean ab
+                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        MailAddress[] receiver
+                = {new MailAddress("receiver.rsenna@gmail.com")};
+        
+        try {
+            ab.sendWithEmbeddedAndAttachments("Attachment Test", "Test1", receiver,
+                    Optional.empty(), Optional.of("embedded1.jpg"),
+                    Optional.empty(), Optional.empty());
+        } catch (Exception ex) {
+            Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        assertEquals(true,true);
     }
 
 }
