@@ -7,14 +7,20 @@ package com.rsenna.business;
 
 import com.rsenna.interfaces.Mailer;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+import javax.mail.Flags;
 import jodd.io.FileUtil;
 import jodd.mail.EmailAddress;
 import jodd.mail.EmailAttachment;
 import jodd.mail.EmailAttachmentBuilder;
+import jodd.mail.EmailFilter;
 import jodd.mail.EmailMessage;
+import jodd.mail.ImapSslServer;
 import jodd.mail.MailAddress;
+import jodd.mail.ReceiveMailSession;
+import jodd.mail.ReceivedEmail;
 import jodd.mail.SendMailSession;
 import jodd.mail.SmtpServer;
 import jodd.mail.SmtpSslServer;
@@ -40,12 +46,13 @@ public class ActionBean implements Mailer {
 
     /**
      * Definition in the Interface.
+     *
      * @param subject
      * @param content
      * @param receiveEmail
      * @param cc
      * @param bcc
-     * @return 
+     * @return
      */
     @Override
     public RyanEmail sendEmail(String subject, String content,
@@ -82,8 +89,10 @@ public class ActionBean implements Mailer {
         //return the email db purposes.
         return email;
     }
+
     /**
      * Definition in the interface.
+     *
      * @param subject
      * @param content
      * @param receiveEmail
@@ -92,7 +101,7 @@ public class ActionBean implements Mailer {
      * @param cc
      * @param bcc
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     @Override
     public RyanEmail sendWithEmbeddedAndAttachments(String subject,
@@ -128,29 +137,47 @@ public class ActionBean implements Mailer {
         }
         // Display Java Mail debug conversation with the server
         smtpServer.debug(true);
-        
+
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
-        
+
         // session
         session.open();
         session.sendMail(email);
         session.close();
-        
+
         //return the email db purposes.
         return email;
 
     }
+
     /**
      * Definition in the interface.
-     * @return 
+     *
+     * @return
      */
     @Override
-    public RyanEmail[] receiveEmail() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public ArrayList<RyanEmail> receiveEmail(String receiver, String receiverPwd) {
+        
+        // Create am IMAP server object
+        ImapSslServer imapSslServer = c.configImapServer(receiver, receiverPwd);
+
+        // Display the converstaion between the application and the imap server
+        imapSslServer.setProperty("mail.debug", "true");
+        
+        //Create a List of emails
+        ArrayList<RyanEmail> receivedEmails = new ArrayList<RyanEmail>();
+        // A session is the object responsible for communicating with the server
+        ReceiveMailSession session = imapSslServer.createSession();
+        session.open();
+        
+        ReceivedEmail[] emails = session.receiveEmailAndMarkSeen(EmailFilter
+                .filter().flag(Flags.Flag.SEEN, false));
+        // CONVERT RECEIVED EMAILS TO RYANEMAILS.
+        //return for db purposes and UI
+        return receivedEmails;
     }
 
-    
     @Override
     public void setConfigBean(ConfigBean c) {
         this.c = new ConfigBean(c.getSmtpServerName(), c.getImapServerName());
@@ -240,21 +267,21 @@ public class ActionBean implements Mailer {
 
         //setting up the embedded image.
         String html = "<html><META http-equiv=Content-Type "
-                        + "content=\"text/html; charset=utf-8\">"
-                        + "<body><img src='cid:embedded1.jpg'>"
-                        + "</body></html>";
+                + "content=\"text/html; charset=utf-8\">"
+                + "<body><img src='cid:embedded1.jpg'>"
+                + "</body></html>";
 
         //CORECT HERE!!!!
         e.addHtml(html);
         e.embed(EmailAttachment.attachment()
-                        .bytes(new File(embedded)));
+                .bytes(new File(embedded)));
 
         return e;
     }
 
     private RyanEmail createEmailWithAttachment(RyanEmail e,
-            String fileAttachmentPath)throws Exception {
-        
+            String fileAttachmentPath) throws Exception {
+
         e.attach(EmailAttachment.attachment().file(fileAttachmentPath));
         return e;
     }

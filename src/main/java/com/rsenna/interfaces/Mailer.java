@@ -7,6 +7,7 @@ package com.rsenna.interfaces;
 
 import com.rsenna.business.ConfigBean;
 import com.rsenna.business.RyanEmail;
+import java.util.ArrayList;
 import java.util.Optional;
 import jodd.mail.EmailAddress;
 import jodd.mail.MailAddress;
@@ -55,7 +56,7 @@ public interface Mailer {
      * It will read messages from the server into the application.
      * @return 
      */
-    public RyanEmail[] receiveEmail();
+    public ArrayList<RyanEmail> receiveEmail(String received, String receiveedPwd);
     /**
      * It will set the configurations of sending and receiving messages.
      * @param c 
