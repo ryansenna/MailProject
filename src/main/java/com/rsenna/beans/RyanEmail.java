@@ -138,7 +138,16 @@ public class RyanEmail extends Email {
 
     @Override
     public boolean equals(Object obj) {
-        return super.equals(obj); //To change body of generated methods, choose Tools | Templates.
+        
+        if(obj == null) return false;
+        if(obj == this) return true;
+        if(!(obj instanceof RyanEmail))return false;
+        RyanEmail e = (RyanEmail)obj;
+        
+        if(e.getSentDate().equals(this.getSentDate()))
+            return true;
+        
+        return false;
     }
 
     @Override

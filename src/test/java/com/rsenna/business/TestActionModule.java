@@ -31,7 +31,7 @@ import static org.junit.Assert.assertTrue;
  *
  * @author 1333612
  */
-public class EmailSendModuleTest {
+public class TestActionModule {
 
     @Ignore
     @Test
@@ -129,7 +129,7 @@ public class EmailSendModuleTest {
                     Optional.empty(), Optional.empty());
         } catch (Exception ex) {
             thrown = true;
-            Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
         }
         
        assertFalse(thrown);
@@ -155,7 +155,7 @@ public class EmailSendModuleTest {
                     Optional.empty(), Optional.empty());
         } catch (Exception ex) {
             thrown = true;
-            Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
         }
         
         assertFalse(thrown);
@@ -181,12 +181,21 @@ public class EmailSendModuleTest {
                     Optional.empty(), Optional.empty());
         } catch (Exception ex) {
             thrown = true;
-            Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
         }
        
         assertFalse(thrown);
     }
     
+    /**
+     * This method tests if the received email is in fact the one sent.
+     * If they are different, the tests fails
+     */
+    @Test 
+    public void testReceiveEmails()
+    {
+        
+    }
     
 
 }
