@@ -38,19 +38,27 @@ public class TestActionModule {
     @Ignore
     @Test
     public void testSend() {
+        boolean thrown = false;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
         ActionModule ab = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver = {new MailAddress("receiver.rsenna@gmail.com")};
 
-        ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.empty(),
-                Optional.empty());
+        try {
+            ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.empty(),
+                    Optional.empty());
+        } catch (Exception ex) {
+            thrown = true;
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        assertEquals(true, true);
+        assertFalse(thrown);
     }
 
     @Ignore
     @Test
     public void testSendWithCC() {
+        
+        boolean thrown = false;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
         ActionModule ab
                 = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
@@ -60,16 +68,24 @@ public class TestActionModule {
                 = {new MailAddress("receiver.rsenna@gmail.com"),
                     new MailAddress("railanderson@gmail.com")
                 };
+        
+        try {
+            ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.of(cc),
+                    Optional.empty());
+        } catch (Exception ex) {
+            thrown = true;
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.of(cc),
-                Optional.empty());
-
-        assertEquals(true, true);
+        assertFalse(thrown);
     }
 
     @Ignore
     @Test
+    
     public void testSendWithBcc() {
+        
+        boolean thrown = false;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
         ActionModule ab
                 = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
@@ -80,10 +96,15 @@ public class TestActionModule {
                     new MailAddress("railanderson@gmail.com")
                 };
 
-        ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.empty(),
-                Optional.of(bcc));
+        try {
+            ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.empty(),
+                    Optional.of(bcc));
+        } catch (Exception ex) {
+            thrown = true;
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        assertEquals(true, true);
+        assertFalse(thrown);
     }
 
     /**
@@ -93,6 +114,7 @@ public class TestActionModule {
     @Ignore
     @Test
     public void testSendWithBoth() {
+        boolean thrown = false;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
         ActionModule ab
                 = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
@@ -105,10 +127,15 @@ public class TestActionModule {
                     new MailAddress("railanderson@gmail.com")
                 };
 
-        ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.of(cc),
-                Optional.of(bcc));
+        try {
+            ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.of(cc),
+                    Optional.of(bcc));
+        } catch (Exception ex) {
+            thrown = true;
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
-        assertEquals(true, true);
+        assertFalse(thrown);
     }
 
     /**
@@ -198,21 +225,26 @@ public class TestActionModule {
     @Ignore
     public void testReceiveEmails() {
         
-        boolean a = false;
+        boolean a = true;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
         ActionModule ab
                 = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
-        RyanEmail email = ab.sendEmail("Hello world", "Testing received", receiver, Optional.empty(),
-                Optional.empty());
+        RyanEmail email = new RyanEmail();
+        try {
+            email = ab.sendEmail("Hello world", "Testing received", receiver, Optional.empty(),
+                    Optional.empty());
+        } catch (Exception ex) {
+            Logger.getLogger(TestActionModule.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
         List<RyanEmail> receivedEmails =
                 ab.receiveEmail("receiver.rsenna@gmail.com", "thisistest");
         
             a = receivedEmails.get(0).compareEmails(email);
             
-        assertTrue(a);  
+        assertFalse(a);  
     }
 
 }

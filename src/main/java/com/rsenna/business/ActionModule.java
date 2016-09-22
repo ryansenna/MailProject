@@ -61,7 +61,7 @@ public class ActionModule implements Mailer {
     public RyanEmail sendEmail(String subject, String content,
             MailAddress[] receiveEmail,
             Optional<MailAddress[]> cc,
-            Optional<MailAddress[]> bcc) {
+            Optional<MailAddress[]> bcc) throws Exception{
         //Create SMTP Server
         SmtpServer<SmtpSslServer> smtpServer
                 = c.configSmtpServer(sendEmail, sendEmailPwd);
@@ -210,7 +210,7 @@ public class ActionModule implements Mailer {
         email.setTo(receiveEmail);
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate(dt.toDate());
+        email.setSentDateAndTime(dt);
         return email;
 
     }
@@ -230,7 +230,7 @@ public class ActionModule implements Mailer {
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate(dt.toDate());
+        email.setSentDateAndTime(dt);
 
         return email;
     }
@@ -248,7 +248,7 @@ public class ActionModule implements Mailer {
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate(dt.toDate());
+        email.setSentDateAndTime(dt);
 
         return email;
     }
@@ -265,7 +265,7 @@ public class ActionModule implements Mailer {
         email.setCc(cc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate(dt.toDate());
+        email.setSentDateAndTime(dt);
 
         return email;
     }

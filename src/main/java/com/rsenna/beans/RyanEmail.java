@@ -15,6 +15,7 @@ import jodd.mail.EmailAttachmentBuilder;
 import jodd.mail.EmailMessage;
 import jodd.mail.MailAddress;
 import jodd.mail.ReceivedEmail;
+import org.joda.time.DateTime;
 
 /**
  * RyanEmail is a definition class with the purpose to give a definition for an
@@ -27,6 +28,7 @@ import jodd.mail.ReceivedEmail;
 public class RyanEmail extends Email {
 
     private String folder = "";
+    private DateTime sentDateAndTime;
 
     public ArrayList<EmailAttachment> getAttachments() {
         return attachments;
@@ -100,8 +102,9 @@ public class RyanEmail extends Email {
         return headers;
     }
 
-    public Date getSentDate() {
-        return sentDate;
+   
+    public DateTime getSentDateAndTime() {
+        return sentDateAndTime;
     }
 
     public void setAttachments(ArrayList<EmailAttachment> attachments) {
@@ -145,8 +148,8 @@ public class RyanEmail extends Email {
         this.headers = headers;
     }
 
-    public void setSentDate(Date sentDate) {
-        this.sentDate = sentDate;
+    public void setSentDateAndTime(DateTime sentDateAndTime) {
+        this.sentDateAndTime = sentDateAndTime;
     }
 
     /**
@@ -169,18 +172,23 @@ public class RyanEmail extends Email {
         // if they have the same subject and list of attachments.
         if (e.getFrom().getEmail().equals(this.getFrom().getEmail())) {
             if (e.getSubject().equalsIgnoreCase(this.getSubject())) {
-                if (e.getAttachments().size() == this.getAttachments().size()) {
-                    List<EmailAttachment> attachments = e.getAttachments();
+                if (e.getAttachments() != null && this.getAttachments() != null) {
+                    if (!e.getAttachments().isEmpty() && !this.getAttachments().isEmpty()) {
+                        List<EmailAttachment> attachments = e.getAttachments();
 
-                    for (int i = 0; i < attachments.size(); i++) {
-                        if (!attachments.get(i).getName().
-                                equalsIgnoreCase(this.getAttachments().get(i).getName())) {
-                            return false;
+                        for (int i = 0; i < attachments.size(); i++) {
+                            if (!attachments.get(i).getName().
+                                    equalsIgnoreCase(this.getAttachments().get(i).getName())) {
+                                return false;
+                            }
                         }
                     }
+                    else
+                        return false;
+                } else {
+                    if(!e.getSentDateAndTime().equals(this.getSentDateAndTime()))
+                        return false;
                 }
-                else
-                    return false;
 
             }
         }
@@ -203,14 +211,15 @@ public class RyanEmail extends Email {
         //declare types
         ArrayList<RyanEmail> myEmails = new ArrayList<RyanEmail>();
         RyanEmail ryanEmail = new RyanEmail();
-
-        //loop through all the Received emails
+        DateTime dt = new DateTime(); 
+       //loop through all the Received emails
         for (int i = 0; i < receivedEmails.length; i++) {
+            dt = new DateTime(receivedEmails[i].getSentDate());
             ryanEmail.setFrom(receivedEmails[i].getFrom());
             ryanEmail.setTo(receivedEmails[i].getTo());
             ryanEmail.setCc(receivedEmails[i].getCc());
             ryanEmail.setBcc(receivedEmails[i].getBcc());
-            ryanEmail.setSentDate(receivedEmails[i].getSentDate());
+            ryanEmail.setSentDateAndTime(dt);
             ryanEmail.setSubject(receivedEmails[i].getSubject());
             ryanEmail.setMessages(receivedEmails[i].getAllMessages());
             ryanEmail.setAttachments((ArrayList<EmailAttachment>) receivedEmails[i].getAttachments());

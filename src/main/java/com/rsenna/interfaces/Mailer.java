@@ -32,7 +32,7 @@ public interface Mailer {
     public RyanEmail sendEmail(String subject, String content,
             MailAddress[] receive,
             Optional<MailAddress[]> cc,
-            Optional<MailAddress[]> bcc);
+            Optional<MailAddress[]> bcc) throws Exception;
     /**
      * This method will carry out smtp conversations with the server.
      * In other words, it will send emails with attachments or not.
