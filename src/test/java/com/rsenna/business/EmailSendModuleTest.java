@@ -7,12 +7,15 @@ package com.rsenna.business;
 
 import org.junit.Test;
 import com.rsenna.business.*;
+import java.io.FileNotFoundException;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jodd.mail.EmailAddress;
 import jodd.mail.MailAddress;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 
 /**
@@ -72,6 +75,10 @@ public class EmailSendModuleTest {
         assertEquals(true, true);
     }
 
+    /**
+     * This method tests if we can send a bcc and cc message.
+     * 
+     */
     @Ignore
     @Test
     public void testSendWithBoth() {
@@ -93,10 +100,14 @@ public class EmailSendModuleTest {
         assertEquals(true, true);
     }
 
+    /**
+     * This method tests if we can send a message with only embedded text.
+     * If an error occurs at run time, the tests fails.
+     */
     @Test
     @Ignore
     public void testSendWithEmbedded() {
-
+        boolean thrown = false;
         ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
         ActionBean ab
                 = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
@@ -108,16 +119,21 @@ public class EmailSendModuleTest {
                     Optional.empty(), Optional.of("embedded1.jpg"),
                     Optional.empty(), Optional.empty());
         } catch (Exception ex) {
+            thrown = true;
             Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        assertEquals(true,true);
+       assertFalse(thrown);
     }
     
+    /**
+     * This method tests if we can send a message with only attachments.
+     * If an error occurs at run time, the tests fails.
+     */
     @Test
     @Ignore
     public void testSendWithAttachments() {
-
+        boolean thrown = false;
         ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
         ActionBean ab
                 = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
@@ -129,15 +145,21 @@ public class EmailSendModuleTest {
                     Optional.of("attachment1.jpg"), Optional.empty(),
                     Optional.empty(), Optional.empty());
         } catch (Exception ex) {
+            thrown = true;
             Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         
-        assertEquals(true,true);
+        assertFalse(thrown);
     }
     
+    /**
+     * This method tests if we can send a message with attachments
+     * and embedded. If an error occurs at run time, the tests fails.
+     */
     @Test
     public void testSendWithAttachmentsAndEmbedded() {
-
+        
+        boolean thrown = false;
         ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
         ActionBean ab
                 = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
@@ -146,13 +168,14 @@ public class EmailSendModuleTest {
         
         try {
             ab.sendWithEmbeddedAndAttachments("Attachment Test", "Test2", receiver,
-                    Optional.of("attachment1.jpg"), Optional.of("embedded.jpg"),
+                    Optional.of("attachment1.jpg"), Optional.of("embedded1.jpg"),
                     Optional.empty(), Optional.empty());
         } catch (Exception ex) {
+            thrown = true;
             Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
-        assertEquals(true,true);
+       
+        assertFalse(thrown);
     }
     
     
