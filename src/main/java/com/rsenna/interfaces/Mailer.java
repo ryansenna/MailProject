@@ -5,8 +5,8 @@
  */
 package com.rsenna.interfaces;
 
-import com.rsenna.business.ConfigBean;
-import com.rsenna.business.RyanEmail;
+import com.rsenna.business.ConfigModule;
+import com.rsenna.beans.RyanEmail;
 import java.util.ArrayList;
 import java.util.Optional;
 import jodd.mail.EmailAddress;
@@ -61,10 +61,10 @@ public interface Mailer {
      * It will set the configurations of sending and receiving messages.
      * @param c 
      */
-    void setConfigBean(ConfigBean c);
+    void setConfigBean(ConfigModule c);
     /**
      * getter for ConfigBean.
      * @return 
      */
-    ConfigBean getConfigBean();
+    ConfigModule getConfigBean();
 }

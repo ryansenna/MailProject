@@ -5,6 +5,7 @@
  */
 package com.rsenna.business;
 
+import com.rsenna.beans.RyanEmail;
 import com.rsenna.interfaces.Mailer;
 import java.io.File;
 import java.util.ArrayList;
@@ -32,13 +33,13 @@ import jodd.util.MimeTypes;
  *
  * @author 1333612
  */
-public class ActionBean implements Mailer {
+public class ActionModule implements Mailer {
 
-    private ConfigBean c;
+    private ConfigModule c;
     private String sendEmail;
     private String sendEmailPwd;
 
-    public ActionBean(ConfigBean c, String sendEmail, String sendEmailPwd) {
+    public ActionModule(ConfigModule c, String sendEmail, String sendEmailPwd) {
         setConfigBean(c);
         setSendEmail(sendEmail);
         setSendEmailPwd(sendEmailPwd);
@@ -173,18 +174,23 @@ public class ActionBean implements Mailer {
         
         ReceivedEmail[] emails = session.receiveEmailAndMarkSeen(EmailFilter
                 .filter().flag(Flags.Flag.SEEN, false));
-        // CONVERT RECEIVED EMAILS TO RYANEMAILS.
+        //close the session
+        session.close();
+        
+        // CONVERT RECEIVED EMAILS TO RYAN EMAILS.
+        receivedEmails = RyanEmail.convertToRyanEmail(emails);
+        
         //return for db purposes and UI
         return receivedEmails;
     }
 
     @Override
-    public void setConfigBean(ConfigBean c) {
-        this.c = new ConfigBean(c.getSmtpServerName(), c.getImapServerName());
+    public void setConfigBean(ConfigModule c) {
+        this.c = new ConfigModule(c.getSmtpServerName(), c.getImapServerName());
     }
 
     @Override
-    public ConfigBean getConfigBean() {
+    public ConfigModule getConfigBean() {
         return c;
     }
 

@@ -13,12 +13,12 @@ import jodd.mail.SmtpSslServer;
  *
  * @author 1333612
  */
-public class ConfigBean {
+public class ConfigModule {
 
     private String smtpServerName;
     private String imapServerName;
 
-    public ConfigBean(String smtpServerName, String imapServerName) {
+    public ConfigModule(String smtpServerName, String imapServerName) {
         setSmtpServerName(smtpServerName);
         setImapServerName(imapServerName);
     }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rsenna.business;
+package com.rsenna.beans;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +14,7 @@ import jodd.mail.EmailAttachment;
 import jodd.mail.EmailAttachmentBuilder;
 import jodd.mail.EmailMessage;
 import jodd.mail.MailAddress;
+import jodd.mail.ReceivedEmail;
 
 /**
  *
@@ -134,8 +135,45 @@ public class RyanEmail extends Email {
     public void setSentDate(Date sentDate) {
         this.sentDate = sentDate;
     }
-    
-    
 
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode(); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    /**
+     * This static method takes in Received email array and transforms into a
+     * List of Ryan Emails.
+     * @param emails
+     * @return 
+     */
+    public static ArrayList<RyanEmail> convertToRyanEmail(ReceivedEmail[] receivedEmails)
+    {
+        //declare types
+        ArrayList<RyanEmail> myEmails = new ArrayList<RyanEmail>();
+        RyanEmail ryanEmail = new RyanEmail();
+        
+        //loop through all the Received emails
+        for(int i = 0; i < receivedEmails.length;i++)
+        {
+            ryanEmail.setFrom(receivedEmails[i].getFrom());
+            ryanEmail.setTo(receivedEmails[i].getTo());
+            ryanEmail.setCc(receivedEmails[i].getCc());
+            ryanEmail.setBcc(receivedEmails[i].getBcc());
+            ryanEmail.setSubject(receivedEmails[i].getSubject());
+            ryanEmail.setMessages(receivedEmails[i].getAllMessages());
+            ryanEmail.setAttachments((ArrayList<EmailAttachment>) receivedEmails[i].getAttachments());
+            
+            myEmails.add(ryanEmail);
+            ryanEmail = new RyanEmail();
+        }
+        //return my list of emails
+        return myEmails;
+    }
     
 }

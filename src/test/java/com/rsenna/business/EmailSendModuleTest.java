@@ -17,6 +17,15 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -27,8 +36,8 @@ public class EmailSendModuleTest {
     @Ignore
     @Test
     public void testSend() {
-        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
-        ActionBean ab = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
+        ActionModule ab = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver = {new MailAddress("receiver.rsenna@gmail.com")};
 
         ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.empty(),
@@ -40,9 +49,9 @@ public class EmailSendModuleTest {
     @Ignore
     @Test
     public void testSendWithCC() {
-        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
-        ActionBean ab
-                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
+        ActionModule ab
+                = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
         MailAddress[] cc
@@ -59,9 +68,9 @@ public class EmailSendModuleTest {
     @Ignore
     @Test
     public void testSendWithBcc() {
-        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
-        ActionBean ab
-                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
+        ActionModule ab
+                = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
         MailAddress[] bcc
@@ -82,9 +91,9 @@ public class EmailSendModuleTest {
     @Ignore
     @Test
     public void testSendWithBoth() {
-        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
-        ActionBean ab
-                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
+        ActionModule ab
+                = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
         MailAddress[] cc
@@ -108,9 +117,9 @@ public class EmailSendModuleTest {
     @Ignore
     public void testSendWithEmbedded() {
         boolean thrown = false;
-        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
-        ActionBean ab
-                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
+        ActionModule ab
+                = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
         
@@ -134,9 +143,9 @@ public class EmailSendModuleTest {
     @Ignore
     public void testSendWithAttachments() {
         boolean thrown = false;
-        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
-        ActionBean ab
-                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
+        ActionModule ab
+                = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
         
@@ -160,9 +169,9 @@ public class EmailSendModuleTest {
     public void testSendWithAttachmentsAndEmbedded() {
         
         boolean thrown = false;
-        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
-        ActionBean ab
-                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com");
+        ActionModule ab
+                = new ActionModule(c, "sender.rsenna@gmail.com", "thisistest");
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
         
