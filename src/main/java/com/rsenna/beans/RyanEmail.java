@@ -17,11 +17,16 @@ import jodd.mail.MailAddress;
 import jodd.mail.ReceivedEmail;
 
 /**
+ * RyanEmail is a definition class with the purpose to give a definition for an
+ * e-mail. The class uses mostly Jodd Email class. However, it contains a method
+ * that merges ReceivedEmail with Email. RyanEmail overrides Equals, HashCode
+ * and toString.
  *
- * @author 1333612
+ * @author Railanderson "Ryan" Sena
  */
 public class RyanEmail extends Email {
-    
+
+    private String folder = "";
 
     public ArrayList<EmailAttachment> getAttachments() {
         return attachments;
@@ -83,6 +88,14 @@ public class RyanEmail extends Email {
         return messages;
     }
 
+    public String getFolder() {
+        return folder;
+    }
+
+    public void setFolder(String folder) {
+        this.folder = folder;
+    }
+
     public Map<String, String> getHeaders() {
         return headers;
     }
@@ -96,7 +109,7 @@ public class RyanEmail extends Email {
     }
 
     public void setFrom(MailAddress from) {
-        
+
         this.from = from;
     }
 
@@ -136,53 +149,78 @@ public class RyanEmail extends Email {
         this.sentDate = sentDate;
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        
-        if(obj == null) return false;
-        if(obj == this) return true;
-        if(!(obj instanceof RyanEmail))return false;
-        RyanEmail e = (RyanEmail)obj;
-        
-        if(e.getSentDate().equals(this.getSentDate()))
+    /**
+     * The method compares if two Emails are equals.
+     *
+     * @param e
+     * @return
+     */
+    public boolean compareEmails(RyanEmail e) {
+        if (e == null) {
+            return false;
+        }
+        if (e == this) {
             return true;
-        
-        return false;
+        }
+        if (!(e instanceof RyanEmail)) {
+            return false;
+        }
+        // Two Emails are equal if they were sent by the same person,
+        // if they have the same subject and list of attachments.
+        if (e.getFrom().getEmail().equals(this.getFrom().getEmail())) {
+            if (e.getSubject().equalsIgnoreCase(this.getSubject())) {
+                if (e.getAttachments().size() == this.getAttachments().size()) {
+                    List<EmailAttachment> attachments = e.getAttachments();
+
+                    for (int i = 0; i < attachments.size(); i++) {
+                        if (!attachments.get(i).getName().
+                                equalsIgnoreCase(this.getAttachments().get(i).getName())) {
+                            return false;
+                        }
+                    }
+                }
+                else
+                    return false;
+
+            }
+        }
+        return true;
     }
 
     @Override
-    public int hashCode() {
-        return super.hashCode(); //To change body of generated methods, choose Tools | Templates.
+    public String toString() {
+        return super.toString();
     }
-    
+
     /**
      * This static method takes in Received email array and transforms into a
      * List of Ryan Emails.
+     *
      * @param emails
-     * @return 
+     * @return
      */
-    public static ArrayList<RyanEmail> convertToRyanEmail(ReceivedEmail[] receivedEmails)
-    {
+    public static ArrayList<RyanEmail> convertToRyanEmail(ReceivedEmail[] receivedEmails) {
         //declare types
         ArrayList<RyanEmail> myEmails = new ArrayList<RyanEmail>();
         RyanEmail ryanEmail = new RyanEmail();
-        
+
         //loop through all the Received emails
-        for(int i = 0; i < receivedEmails.length;i++)
-        {
+        for (int i = 0; i < receivedEmails.length; i++) {
             ryanEmail.setFrom(receivedEmails[i].getFrom());
             ryanEmail.setTo(receivedEmails[i].getTo());
             ryanEmail.setCc(receivedEmails[i].getCc());
             ryanEmail.setBcc(receivedEmails[i].getBcc());
+            ryanEmail.setSentDate(receivedEmails[i].getSentDate());
             ryanEmail.setSubject(receivedEmails[i].getSubject());
             ryanEmail.setMessages(receivedEmails[i].getAllMessages());
             ryanEmail.setAttachments((ArrayList<EmailAttachment>) receivedEmails[i].getAttachments());
-            
+            ryanEmail.setFolder("inbox");
+
             myEmails.add(ryanEmail);
             ryanEmail = new RyanEmail();
         }
         //return my list of emails
         return myEmails;
     }
-    
+
 }

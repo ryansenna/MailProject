@@ -1,8 +1,4 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+
 package com.rsenna.business;
 
 import com.rsenna.beans.RyanEmail;
@@ -28,10 +24,16 @@ import jodd.mail.SmtpSslServer;
 import jodd.mail.att.ByteArrayAttachment;
 import jodd.mail.att.FileAttachment;
 import jodd.util.MimeTypes;
+import org.joda.time.DateTime;
 
 /**
+ * The class ActionModule is a business class with the purpose
+ * of creating, sending and receiving e-mails.
+ * The class uses Jodd and Joda as long with java libraries to support its
+ * final goal.
  *
- * @author 1333612
+ * @author Railanderson "Ryan" Sena
+ * @version 1.0
  */
 public class ActionModule implements Mailer {
 
@@ -79,6 +81,8 @@ public class ActionModule implements Mailer {
             email = createEmail(subject, content, receiveEmail);
         }
 
+        //Kepp it in the folder Sent
+        email.setFolder("Sent");
         // A session is the object responsible for communicating with the server
         SendMailSession session = smtpServer.createSession();
 
@@ -109,8 +113,6 @@ public class ActionModule implements Mailer {
             String content, MailAddress[] receiveEmail,
             Optional<String> fileAttachPath, Optional<String> embeddedPath,
             Optional<MailAddress[]> cc, Optional<MailAddress[]> bcc) throws Exception {
-
-        String embedded = "";
         //Create SMTP Server
         SmtpServer<SmtpSslServer> smtpServer
                 = c.configSmtpServer(sendEmail, sendEmailPwd);
@@ -127,7 +129,9 @@ public class ActionModule implements Mailer {
         } else {
             email = createEmail(subject, content, receiveEmail);
         }
-
+        
+        //Kepp it in the folder Sent
+        email.setFolder("Sent");
         // Check if we need to have an Embedded message.
         if (embeddedPath.isPresent()) {
             email = createEmailWithEmbedded(email, embeddedPath.get());
@@ -201,22 +205,14 @@ public class ActionModule implements Mailer {
 
         //MailAddress[] receiving = copy(receiveEmail);
         RyanEmail email = new RyanEmail();
-
+        DateTime dt = DateTime.now();
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        email.setSentDate(dt.toDate());
         return email;
 
-    }
-
-    private MailAddress[] copy(EmailAddress[] receiveEmail) {
-
-        MailAddress[] ma = new MailAddress[receiveEmail.length];
-        for (int i = 0; i < receiveEmail.length; i++) {
-            ma[i] = new MailAddress(receiveEmail[i]);
-        }
-        return ma;
     }
 
     private RyanEmail createEmailWithBoth(String subject, String content,
@@ -226,13 +222,15 @@ public class ActionModule implements Mailer {
         MailAddress sending = new MailAddress(sendEmail);
 
         RyanEmail email = new RyanEmail();
-
+        DateTime dt = DateTime.now();
+        
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setCc(cc.get());
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        email.setSentDate(dt.toDate());
 
         return email;
     }
@@ -243,12 +241,14 @@ public class ActionModule implements Mailer {
         MailAddress sending = new MailAddress(sendEmail);
 
         RyanEmail email = new RyanEmail();
-
+        DateTime dt = DateTime.now();
+        
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        email.setSentDate(dt.toDate());
 
         return email;
     }
@@ -259,12 +259,13 @@ public class ActionModule implements Mailer {
         MailAddress sending = new MailAddress(sendEmail);
 
         RyanEmail email = new RyanEmail();
-
+        DateTime dt = DateTime.now();
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setCc(cc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
+        email.setSentDate(dt.toDate());
 
         return email;
     }
@@ -276,8 +277,6 @@ public class ActionModule implements Mailer {
                 + "content=\"text/html; charset=utf-8\">"
                 + "<body><img src='cid:embedded1.jpg'>"
                 + "</body></html>";
-
-        //CORECT HERE!!!!
         e.addHtml(html);
         e.embed(EmailAttachment.attachment()
                 .bytes(new File(embedded)));
