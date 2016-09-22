@@ -38,6 +38,15 @@ public class ActionBean implements Mailer {
         setSendEmailPwd(sendEmailPwd);
     }
 
+    /**
+     * Definition in the Interface.
+     * @param subject
+     * @param content
+     * @param receiveEmail
+     * @param cc
+     * @param bcc
+     * @return 
+     */
     @Override
     public RyanEmail sendEmail(String subject, String content,
             MailAddress[] receiveEmail,
@@ -73,7 +82,18 @@ public class ActionBean implements Mailer {
         //return the email db purposes.
         return email;
     }
-
+    /**
+     * Definition in the interface.
+     * @param subject
+     * @param content
+     * @param receiveEmail
+     * @param fileAttachPath
+     * @param embeddedPath
+     * @param cc
+     * @param bcc
+     * @return
+     * @throws Exception 
+     */
     @Override
     public RyanEmail sendWithEmbeddedAndAttachments(String subject,
             String content, MailAddress[] receiveEmail,
@@ -121,12 +141,16 @@ public class ActionBean implements Mailer {
         return email;
 
     }
-
+    /**
+     * Definition in the interface.
+     * @return 
+     */
     @Override
     public RyanEmail[] receiveEmail() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    
     @Override
     public void setConfigBean(ConfigBean c) {
         this.c = new ConfigBean(c.getSmtpServerName(), c.getImapServerName());

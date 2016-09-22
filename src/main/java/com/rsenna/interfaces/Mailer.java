@@ -32,6 +32,19 @@ public interface Mailer {
             MailAddress[] receive,
             Optional<MailAddress[]> cc,
             Optional<MailAddress[]> bcc);
+    /**
+     * This method will carry out smtp conversations with the server.
+     * In other words, it will send emails with attachments or not.
+     * @param subject
+     * @param content
+     * @param receive
+     * @param fileAttachPath
+     * @param embeddedPath
+     * @param cc
+     * @param bcc
+     * @return
+     * @throws Exception 
+     */
     public RyanEmail sendWithEmbeddedAndAttachments(String subject,
             String content, MailAddress[] receive,
             Optional<String> fileAttachPath, Optional<String> embeddedPath,
