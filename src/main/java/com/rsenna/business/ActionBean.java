@@ -108,7 +108,15 @@ public class ActionBean implements Mailer {
         }
         // Display Java Mail debug conversation with the server
         smtpServer.debug(true);
-
+        
+        // A session is the object responsible for communicating with the server
+        SendMailSession session = smtpServer.createSession();
+        
+        // session
+        session.open();
+        session.sendMail(email);
+        session.close();
+        
         //return the email db purposes.
         return email;
 
@@ -208,28 +216,22 @@ public class ActionBean implements Mailer {
 
         //setting up the embedded image.
         String html = "<html><META http-equiv=Content-Type "
-                + "content=\"text/html; charset=utf-8\">"
-                + "<body><img src=" + embedded
-                + ">"
-                + "</body></html>";
-
-        EmailAttachmentBuilder embeddedAttachment = 
-                EmailAttachment.attachment().bytes(new File(embedded));// possible erros here.
+                        + "content=\"text/html; charset=utf-8\">"
+                        + "<body><img src='cid:embedded1.jpg'>"
+                        + "</body></html>";
 
         //CORECT HERE!!!!
-        e.embed(embeddedAttachment);
+        e.addHtml(html);
+        e.embed(EmailAttachment.attachment()
+                        .bytes(new File(embedded)));
 
         return e;
     }
 
     private RyanEmail createEmailWithAttachment(RyanEmail e,
             String fileAttachmentPath)throws Exception {
-
-        EmailAttachment attachment
-                = new FileAttachment(new File(fileAttachmentPath),
-                        fileAttachmentPath, fileAttachmentPath);// possible errors
         
-        e.attach(attachment);
+        e.attach(EmailAttachment.attachment().file(fileAttachmentPath));
         return e;
     }
 

@@ -94,6 +94,7 @@ public class EmailSendModuleTest {
     }
 
     @Test
+    @Ignore
     public void testSendWithEmbedded() {
 
         ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
@@ -112,5 +113,48 @@ public class EmailSendModuleTest {
         
         assertEquals(true,true);
     }
+    
+    @Test
+    @Ignore
+    public void testSendWithAttachments() {
+
+        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
+        ActionBean ab
+                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        MailAddress[] receiver
+                = {new MailAddress("receiver.rsenna@gmail.com")};
+        
+        try {
+            ab.sendWithEmbeddedAndAttachments("Attachment Test", "Test2", receiver,
+                    Optional.of("attachment1.jpg"), Optional.empty(),
+                    Optional.empty(), Optional.empty());
+        } catch (Exception ex) {
+            Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        assertEquals(true,true);
+    }
+    
+    @Test
+    public void testSendWithAttachmentsAndEmbedded() {
+
+        ConfigBean c = new ConfigBean("smtp.gmail.com", "imap.gmail.com");
+        ActionBean ab
+                = new ActionBean(c, "sender.rsenna@gmail.com", "thisistest");
+        MailAddress[] receiver
+                = {new MailAddress("receiver.rsenna@gmail.com")};
+        
+        try {
+            ab.sendWithEmbeddedAndAttachments("Attachment Test", "Test2", receiver,
+                    Optional.of("attachment1.jpg"), Optional.of("embedded.jpg"),
+                    Optional.empty(), Optional.empty());
+        } catch (Exception ex) {
+            Logger.getLogger(EmailSendModuleTest.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        assertEquals(true,true);
+    }
+    
+    
 
 }
