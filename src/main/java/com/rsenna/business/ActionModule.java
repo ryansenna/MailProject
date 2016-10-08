@@ -4,6 +4,9 @@ package com.rsenna.business;
 import com.rsenna.beans.RyanEmail;
 import com.rsenna.interfaces.Mailer;
 import java.io.File;
+import java.util.Date;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
@@ -24,13 +27,10 @@ import jodd.mail.SmtpSslServer;
 import jodd.mail.att.ByteArrayAttachment;
 import jodd.mail.att.FileAttachment;
 import jodd.util.MimeTypes;
-import org.joda.time.DateTime;
 
 /**
  * The class ActionModule is a business class with the purpose
  * of creating, sending and receiving e-mails.
- * The class uses Jodd and Joda as long with java libraries to support its
- * final goal.
  *
  * @author Railanderson "Ryan" Sena
  * @version 1.0
@@ -70,7 +70,7 @@ public class ActionModule implements Mailer {
         //Create an Email
         RyanEmail email = new RyanEmail();
         if (cc.isPresent() && bcc.isPresent()) {// create with cc and bcc if exists
-            email = createEmailWithBoth(subject, content, receiveEmail, cc, bcc);
+            email = createEmailWithCCAndBCC(subject, content, receiveEmail, cc, bcc);
         } else if (cc.isPresent()) {// create if cc exists.
             email = createEmailWithCc(subject, content, receiveEmail, cc);
         } else if (bcc.isPresent()) {// create if bcc exists.
@@ -150,14 +150,13 @@ public class ActionModule implements Mailer {
         RyanEmail ryanEmail = new RyanEmail();
        //loop through all the Received emails
         for (int i = 0; i < receivedEmails.length; i++) {
-            dt = new DateTime(receivedEmails[i].getSentDate());
             ryanEmail.setFrom(receivedEmails[i].getFrom());
             ryanEmail.setTo(receivedEmails[i].getTo());
             ryanEmail.setCc(receivedEmails[i].getCc());
             ryanEmail.setBcc(receivedEmails[i].getBcc());
-            ryanEmail.setRcvDate(receivedEmails[i].getReceiveDate().);
+            ryanEmail.setRcvDate((Timestamp)receivedEmails[i].getReceiveDate());
             ryanEmail.setSubject(receivedEmails[i].getSubject());
-            ryanEmail.set
+            ryanEmail.setAttachedMessages(receivedEmails[i].getAttachedMessages()); // THIS LINE HERE !!!
             ryanEmail.setAttachments((ArrayList<EmailAttachment>) receivedEmails[i].getAttachments());
             ryanEmail.setFolder("inbox");
 
@@ -172,75 +171,102 @@ public class ActionModule implements Mailer {
     public ConfigModule getConfigBean() {
         return c;
     }
-
+    /**
+     * This Method creates and returns a nude Email, without CC, BCC, Attachments,
+     * or EmbeddedAttachments.
+     * 
+     * @param subject
+     * @param content
+     * @param receiveEmail
+     * @return 
+     */
     private RyanEmail createEmail(String subject, String content,
             MailAddress[] receiveEmail) {
         //EmailAddress sendAddress = new EmailAddress(sendEmail);
-        MailAddress sending = new MailAddress(sendEmail);
+        MailAddress sending = new MailAddress(c.getSendEmail());
 
         //MailAddress[] receiving = copy(receiveEmail);
         RyanEmail email = new RyanEmail();
-        DateTime dt = DateTime.now();
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDateAndTime(dt);
+        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
         return email;
 
     }
-
-    private RyanEmail createEmailWithBoth(String subject, String content,
+    /**
+     * This method creates an Email with cc and bcc.
+     * 
+     * @param subject
+     * @param content
+     * @param receiveEmail
+     * @param cc
+     * @param bcc
+     * @return 
+     */
+    private RyanEmail createEmailWithCCAndBCC(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> cc,
             Optional<MailAddress[]> bcc) {
 
-        MailAddress sending = new MailAddress(sendEmail);
+        MailAddress sending = new MailAddress(c.getSendEmail());
 
         RyanEmail email = new RyanEmail();
-        DateTime dt = DateTime.now();
-        
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setCc(cc.get());
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDateAndTime(dt);
+        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
 
         return email;
     }
-
+    /**
+     * This method creates an email with Bcc only.
+     * @param subject
+     * @param content
+     * @param receiveEmail
+     * @param bcc
+     * @return 
+     */
     private RyanEmail createEmailWithBcc(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> bcc) {
 
-        MailAddress sending = new MailAddress(sendEmail);
+        MailAddress sending = new MailAddress(c.getSendEmail());
 
         RyanEmail email = new RyanEmail();
-        DateTime dt = DateTime.now();
         
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDateAndTime(dt);
+        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
 
         return email;
     }
-
+    
+    /**
+     * This method creates an email with cc only.
+     * @param subject
+     * @param content
+     * @param receiveEmail
+     * @param cc
+     * @return 
+     */
     private RyanEmail createEmailWithCc(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> cc) {
 
-        MailAddress sending = new MailAddress(sendEmail);
+        MailAddress sending = new MailAddress(c.getSendEmail());
 
         RyanEmail email = new RyanEmail();
-        DateTime dt = DateTime.now();
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setCc(cc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDateAndTime(dt);
+        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
 
         return email;
     }
@@ -250,7 +276,7 @@ public class ActionModule implements Mailer {
         //setting up the embedded image.
         String html = "<html><META http-equiv=Content-Type "
                 + "content=\"text/html; charset=utf-8\">"
-                + "<body><img src='cid:embedded1.jpg'>"
+                + "<body><img src='cid:"+embedded+"'>"
                 + "</body></html>";
         e.addHtml(html);
         e.embed(EmailAttachment.attachment()

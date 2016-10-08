@@ -5,6 +5,7 @@
  */
 package com.rsenna.beans;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -30,17 +31,17 @@ import jodd.mail.ReceivedEmail;
 public class RyanEmail extends Email {
 
     private String folder = "";
-    private List<RyanEmail> attachedMessages;
+    private List<ReceivedEmail> attachedMessages;
     private Flags flags;
     private int messageNumber;
-    private LocalDateTime rcvDate;
+    private Timestamp rcvDate;
     
     public RyanEmail(){
         super();
-        attachedMessages = new ArrayList<RyanEmail>();
+        attachedMessages = new ArrayList<ReceivedEmail>();
         flags = new Flags();
         messageNumber =0;
-        rcvDate = LocalDateTime.now();
+        rcvDate = Timestamp.valueOf(LocalDateTime.now());
     }
     /**
      * The method compares if two Emails are equals.
@@ -89,7 +90,7 @@ public class RyanEmail extends Email {
         return folder;
     }
 
-    public List<RyanEmail> getAttachedMessages() {
+    public List<ReceivedEmail> getAttachedMessages() {
         return attachedMessages;
     }
 
@@ -101,7 +102,7 @@ public class RyanEmail extends Email {
         return messageNumber;
     }
 
-    public LocalDateTime getRcvDate() {
+    public Timestamp getRcvDate() {
         return rcvDate;
     }
 
@@ -109,7 +110,7 @@ public class RyanEmail extends Email {
         this.folder = folder;
     }
 
-    public void setAttachedMessages(List<RyanEmail> attachedMessages) {
+    public void setAttachedMessages(List<ReceivedEmail> attachedMessages) {
         this.attachedMessages = attachedMessages;
     }
 
@@ -121,7 +122,7 @@ public class RyanEmail extends Email {
         this.messageNumber = messageNumber;
     }
 
-    public void setRcvDate(LocalDateTime rcvDate) {
+    public void setRcvDate(Timestamp rcvDate) {
         this.rcvDate = rcvDate;
     }
 }
