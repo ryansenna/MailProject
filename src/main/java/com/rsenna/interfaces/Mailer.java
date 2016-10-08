@@ -20,21 +20,6 @@ public interface Mailer {
     
     /**
      * This method will carry out smtp conversations with the server.
-     * In Other words it will send emails to the server.
-     * 
-     * @param subject
-     * @param content
-     * @param receiveEmail
-     * @param cc
-     * @param bcc
-     * @return JagEmail
-     */
-    public RyanEmail sendEmail(String subject, String content,
-            MailAddress[] receive,
-            Optional<MailAddress[]> cc,
-            Optional<MailAddress[]> bcc) throws Exception;
-    /**
-     * This method will carry out smtp conversations with the server.
      * In other words, it will send emails with attachments or not.
      * @param subject
      * @param content
@@ -46,7 +31,7 @@ public interface Mailer {
      * @return
      * @throws Exception 
      */
-    public RyanEmail sendWithEmbeddedAndAttachments(String subject,
+    public RyanEmail sendEmail(String subject,
             String content, MailAddress[] receive,
             Optional<String> fileAttachPath, Optional<String> embeddedPath,
             Optional<MailAddress[]> cc,
@@ -56,12 +41,7 @@ public interface Mailer {
      * It will read messages from the server into the application.
      * @return 
      */
-    public ArrayList<RyanEmail> receiveEmail(String received, String receiveedPwd);
-    /**
-     * It will set the configurations of sending and receiving messages.
-     * @param c 
-     */
-    void setConfigBean(ConfigModule c);
+    public ArrayList<RyanEmail> receiveEmail();
     /**
      * getter for ConfigBean.
      * @return 

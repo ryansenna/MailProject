@@ -38,61 +38,9 @@ import org.joda.time.DateTime;
 public class ActionModule implements Mailer {
 
     private ConfigModule c;
-    private String sendEmail;
-    private String sendEmailPwd;
 
-    public ActionModule(ConfigModule c, String sendEmail, String sendEmailPwd) {
-        setConfigBean(c);
-        setSendEmail(sendEmail);
-        setSendEmailPwd(sendEmailPwd);
-    }
-
-    /**
-     * Definition in the Interface.
-     *
-     * @param subject
-     * @param content
-     * @param receiveEmail
-     * @param cc
-     * @param bcc
-     * @return
-     */
-    @Override
-    public RyanEmail sendEmail(String subject, String content,
-            MailAddress[] receiveEmail,
-            Optional<MailAddress[]> cc,
-            Optional<MailAddress[]> bcc) throws Exception{
-        //Create SMTP Server
-        SmtpServer<SmtpSslServer> smtpServer
-                = c.configSmtpServer(sendEmail, sendEmailPwd);
-
-        // Display Java Mail debug conversation with the server
-        smtpServer.debug(true);
-
-        //Create an Email
-        RyanEmail email = null;
-        if (cc.isPresent() && bcc.isPresent()) {
-            email = createEmailWithBoth(subject, content, receiveEmail, cc, bcc);
-        } else if (cc.isPresent()) {
-            email = createEmailWithCc(subject, content, receiveEmail, cc);
-        } else if (bcc.isPresent()) {
-            email = createEmailWithBcc(subject, content, receiveEmail, bcc);
-        } else {
-            email = createEmail(subject, content, receiveEmail);
-        }
-
-        //Kepp it in the folder Sent
-        email.setFolder("Sent");
-        // A session is the object responsible for communicating with the server
-        SendMailSession session = smtpServer.createSession();
-
-        // Like a file we open the session, send the message and close the
-        // session
-        session.open();
-        session.sendMail(email);
-        session.close();
-        //return the email db purposes.
-        return email;
+    public ActionModule(ConfigModule c) {
+        this.c = c;
     }
 
     /**
@@ -109,28 +57,29 @@ public class ActionModule implements Mailer {
      * @throws Exception
      */
     @Override
-    public RyanEmail sendWithEmbeddedAndAttachments(String subject,
+    public RyanEmail sendEmail(String subject,
             String content, MailAddress[] receiveEmail,
             Optional<String> fileAttachPath, Optional<String> embeddedPath,
             Optional<MailAddress[]> cc, Optional<MailAddress[]> bcc) throws Exception {
         //Create SMTP Server
         SmtpServer<SmtpSslServer> smtpServer
-                = c.configSmtpServer(sendEmail, sendEmailPwd);
+                = c.configSmtpServer();
+
+
 
         //Create an Email
         RyanEmail email = new RyanEmail();
-
-        if (cc.isPresent() && bcc.isPresent()) {
+        if (cc.isPresent() && bcc.isPresent()) {// create with cc and bcc if exists
             email = createEmailWithBoth(subject, content, receiveEmail, cc, bcc);
-        } else if (cc.isPresent()) {
+        } else if (cc.isPresent()) {// create if cc exists.
             email = createEmailWithCc(subject, content, receiveEmail, cc);
-        } else if (bcc.isPresent()) {
+        } else if (bcc.isPresent()) {// create if bcc exists.
             email = createEmailWithBcc(subject, content, receiveEmail, bcc);
-        } else {
+        } else {// create a normal email.
             email = createEmail(subject, content, receiveEmail);
         }
         
-        //Kepp it in the folder Sent
+        //Keep it in the folder Sent
         email.setFolder("Sent");
         // Check if we need to have an Embedded message.
         if (embeddedPath.isPresent()) {
@@ -162,10 +111,10 @@ public class ActionModule implements Mailer {
      * @return
      */
     @Override
-    public ArrayList<RyanEmail> receiveEmail(String receiver, String receiverPwd) {
+    public ArrayList<RyanEmail> receiveEmail() {
         
         // Create am IMAP server object
-        ImapSslServer imapSslServer = c.configImapServer(receiver, receiverPwd);
+        ImapSslServer imapSslServer = c.configImapServer();
 
         // Display the converstaion between the application and the imap server
         imapSslServer.setProperty("mail.debug", "true");
@@ -182,15 +131,41 @@ public class ActionModule implements Mailer {
         session.close();
         
         // CONVERT RECEIVED EMAILS TO RYAN EMAILS.
-        receivedEmails = RyanEmail.convertToRyanEmail(emails);
+        receivedEmails = convertToRyanEmail(emails);
         
         //return for db purposes and UI
         return receivedEmails;
     }
+    
+        /**
+     * This static method takes in Received email array and transforms into a
+     * List of Ryan Emails.
+     *
+     * @param emails
+     * @return
+     */
+    public ArrayList<RyanEmail> convertToRyanEmail(ReceivedEmail[] receivedEmails) {
+        //declare types
+        ArrayList<RyanEmail> myEmails = new ArrayList<RyanEmail>();
+        RyanEmail ryanEmail = new RyanEmail();
+       //loop through all the Received emails
+        for (int i = 0; i < receivedEmails.length; i++) {
+            dt = new DateTime(receivedEmails[i].getSentDate());
+            ryanEmail.setFrom(receivedEmails[i].getFrom());
+            ryanEmail.setTo(receivedEmails[i].getTo());
+            ryanEmail.setCc(receivedEmails[i].getCc());
+            ryanEmail.setBcc(receivedEmails[i].getBcc());
+            ryanEmail.setRcvDate(receivedEmails[i].getReceiveDate().);
+            ryanEmail.setSubject(receivedEmails[i].getSubject());
+            ryanEmail.set
+            ryanEmail.setAttachments((ArrayList<EmailAttachment>) receivedEmails[i].getAttachments());
+            ryanEmail.setFolder("inbox");
 
-    @Override
-    public void setConfigBean(ConfigModule c) {
-        this.c = new ConfigModule(c.getSmtpServerName(), c.getImapServerName());
+            myEmails.add(ryanEmail);
+            ryanEmail = new RyanEmail();
+        }
+        //return my list of emails
+        return myEmails;
     }
 
     @Override
@@ -290,13 +265,4 @@ public class ActionModule implements Mailer {
         e.attach(EmailAttachment.attachment().file(fileAttachmentPath));
         return e;
     }
-
-    public void setSendEmail(String sendEmail) {
-        this.sendEmail = sendEmail;
-    }
-
-    public void setSendEmailPwd(String sendEmailPwd) {
-        this.sendEmailPwd = sendEmailPwd;
-    }
-
 }

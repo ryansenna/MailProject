@@ -17,10 +17,21 @@ public class ConfigModule {
 
     private String smtpServerName;
     private String imapServerName;
+    private String sendEmail;
+    private String sendEmailPwd;
+    private String receiveEmail;
+    private String receiveEmailPwd;
 
-    public ConfigModule(String smtpServerName, String imapServerName) {
+    public ConfigModule(String smtpServerName, String imapServerName,
+            String sendEmail, String sendEmailPwd, String receiveEmail,
+            String receiveEmailPwd)
+    {
         setSmtpServerName(smtpServerName);
         setImapServerName(imapServerName);
+        this.sendEmail = sendEmail;
+        this.sendEmailPwd = sendEmailPwd;
+        this.receiveEmail = receiveEmail;
+        this.receiveEmailPwd = receiveEmailPwd;
     }
 
     public String getSmtpServerName() {
@@ -31,6 +42,38 @@ public class ConfigModule {
         return imapServerName;
     }
 
+    public String getSendEmail() {
+        return sendEmail;
+    }
+
+    public String getSendEmailPwd() {
+        return sendEmailPwd;
+    }
+
+    public String getReceiveEmail() {
+        return receiveEmail;
+    }
+
+    public String getReceiveEmailPwd() {
+        return receiveEmailPwd;
+    }
+
+    public void setSendEmail(String sendEmail) {
+        this.sendEmail = sendEmail;
+    }
+
+    public void setSendEmailPwd(String sendEmailPwd) {
+        this.sendEmailPwd = sendEmailPwd;
+    }
+
+    public void setReceiveEmail(String receiveEmail) {
+        this.receiveEmail = receiveEmail;
+    }
+
+    public void setReceiveEmailPwd(String receiveEmailPwd) {
+        this.receiveEmailPwd = receiveEmailPwd;
+    }
+    
     private void setSmtpServerName(String smtpServerName) {
         this.smtpServerName = smtpServerName;
     }
@@ -44,12 +87,11 @@ public class ConfigModule {
      * @param emailPwd
      * @return smtpServer
      */
-    public SmtpServer<SmtpSslServer> configSmtpServer(String emailAddress,
-            String emailPwd) {
+    public SmtpServer<SmtpSslServer> configSmtpServer() {
 
         SmtpServer<SmtpSslServer> smtpServer = SmtpSslServer
                 .create(smtpServerName)
-                .authenticateWith(emailAddress, emailPwd);
+                .authenticateWith(sendEmail, sendEmailPwd);
 
         return smtpServer;
     }
@@ -59,11 +101,10 @@ public class ConfigModule {
      * @param emailReceivePwd
      * @return imapSslServer
      */
-    public ImapSslServer configImapServer(String emailReceive,
-            String emailReceivePwd) {
+    public ImapSslServer configImapServer() {
         
         ImapSslServer imapSslServer = new ImapSslServer(imapServerName,
-                emailReceive, emailReceivePwd);
+                receiveEmail, receiveEmailPwd);
         return imapSslServer;
         
     }
