@@ -32,6 +32,7 @@ public class RyanEmail extends Email {
 
     private String folder = "";
     private List<ReceivedEmail> attachedMessages;
+    private List<EmailAttachment> attachments;
     private Flags flags;
     private int messageNumber;
     private Timestamp rcvDate;
@@ -39,6 +40,7 @@ public class RyanEmail extends Email {
     public RyanEmail(){
         super();
         attachedMessages = new ArrayList<ReceivedEmail>();
+        attachments = new ArrayList<EmailAttachment>();
         flags = new Flags();
         messageNumber =0;
         rcvDate = Timestamp.valueOf(LocalDateTime.now());
@@ -49,20 +51,9 @@ public class RyanEmail extends Email {
      * @param e
      * @return
      */
-    public boolean compareEmails(RyanEmail e) {
-        if (e == null) {
-            return false;
-        }
-        if (e == this) {
-            return true;
-        }
-        if (!(e instanceof RyanEmail)) {
-            return false;
-        }
-        // Two Emails are equal if they were sent by the same person,
-        // if they have the same subject and list of attachments.
-        if (e.getFrom().getEmail().equals(this.getFrom().getEmail())) {
-            if (e.getSubject().equalsIgnoreCase(this.getSubject())) {
+    
+    
+              /**
                 if (e.getAttachments() != null && this.getAttachments() != null) {
                     if (!e.getAttachments().isEmpty() && !this.getAttachments().isEmpty()) {
                         List<EmailAttachment> attachments = e.getAttachments();
@@ -77,13 +68,35 @@ public class RyanEmail extends Email {
                     else
                         return false;
                 } else {
-                    //if(!e.getSentDateAndTime().equals(this.getSentDateAndTime()))
-                      //  return false;
+                    if(!e.getSentDateAndTime().equals(this.getSentDateAndTime()))
+                       return false;
+                }
+                *
+                * 
+                */
+    public boolean compareEmails(RyanEmail e) {
+        
+        if (e == null) {
+            return false;
+        }
+        if (e == this) {
+            return true;
+        }
+        if (!(e instanceof RyanEmail)) {
+            return false;
+        }
+        // Two Emails are equal if they were sent by the same person,
+        // if they have the same subject and list of attachments.
+        if (e.getFrom().getEmail().equals(this.getFrom().getEmail())) {
+            if (e.getSubject().equalsIgnoreCase(this.getSubject())) {
+                if(e.getSentDate().equals(this.getSentDate())){
+                    if(e.getRcvDate().equals(this.getRcvDate()))
+                        return true;
                 }
 
             }
         }
-        return true;
+        return false;
     }
 
     public String getFolder() {
@@ -105,7 +118,7 @@ public class RyanEmail extends Email {
     public Timestamp getRcvDate() {
         return rcvDate;
     }
-
+    
     public void setFolder(String folder) {
         this.folder = folder;
     }
@@ -125,4 +138,9 @@ public class RyanEmail extends Email {
     public void setRcvDate(Timestamp rcvDate) {
         this.rcvDate = rcvDate;
     }
+
+    public void setAttachments(List<EmailAttachment> attachments) {
+        this.attachments = attachments;
+    }
+    
 }

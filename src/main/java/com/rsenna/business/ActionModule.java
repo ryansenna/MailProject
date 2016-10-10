@@ -8,15 +8,10 @@ import java.util.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Optional;
 import javax.mail.Flags;
-import jodd.io.FileUtil;
-import jodd.mail.EmailAddress;
 import jodd.mail.EmailAttachment;
-import jodd.mail.EmailAttachmentBuilder;
 import jodd.mail.EmailFilter;
-import jodd.mail.EmailMessage;
 import jodd.mail.ImapSslServer;
 import jodd.mail.MailAddress;
 import jodd.mail.ReceiveMailSession;
@@ -24,8 +19,6 @@ import jodd.mail.ReceivedEmail;
 import jodd.mail.SendMailSession;
 import jodd.mail.SmtpServer;
 import jodd.mail.SmtpSslServer;
-import jodd.mail.att.ByteArrayAttachment;
-import jodd.mail.att.FileAttachment;
 import jodd.util.MimeTypes;
 
 /**
@@ -148,17 +141,30 @@ public class ActionModule implements Mailer {
         //declare types
         ArrayList<RyanEmail> myEmails = new ArrayList<RyanEmail>();
         RyanEmail ryanEmail = new RyanEmail();
+        int emailMessageLenght = 0;
+        
        //loop through all the Received emails
         for (int i = 0; i < receivedEmails.length; i++) {
+            Timestamp ts = new Timestamp(receivedEmails[i].getReceiveDate().getTime());
             ryanEmail.setFrom(receivedEmails[i].getFrom());
             ryanEmail.setTo(receivedEmails[i].getTo());
             ryanEmail.setCc(receivedEmails[i].getCc());
             ryanEmail.setBcc(receivedEmails[i].getBcc());
-            ryanEmail.setRcvDate((Timestamp)receivedEmails[i].getReceiveDate());
+            ryanEmail.setSentDate(receivedEmails[i].getSentDate());
+            ryanEmail.setRcvDate(ts);
             ryanEmail.setSubject(receivedEmails[i].getSubject());
-            ryanEmail.setAttachedMessages(receivedEmails[i].getAttachedMessages()); // THIS LINE HERE !!!
-            ryanEmail.setAttachments((ArrayList<EmailAttachment>) receivedEmails[i].getAttachments());
+            ryanEmail.setAttachedMessages(receivedEmails[i].getAttachedMessages());
+            ryanEmail.setAttachments(receivedEmails[i].getAttachments());
+            ryanEmail.setMessageNumber(receivedEmails[i].getMessageNumber());
+            ryanEmail.setFlags(receivedEmails[i].getFlags());
             ryanEmail.setFolder("inbox");
+            
+            // add all the messages from the received Email.
+            emailMessageLenght = receivedEmails[i].getAllMessages().size();
+            for(int j = 0; j < emailMessageLenght; j++)
+            {
+                ryanEmail.addMessage(receivedEmails[i].getAllMessages().get(j));
+            }
 
             myEmails.add(ryanEmail);
             ryanEmail = new RyanEmail();
@@ -224,8 +230,8 @@ public class ActionModule implements Mailer {
     }
     /**
      * This method creates an email with Bcc only.
-     * @param subject
-     * @param content
+     * @param subject the subject of the email
+     * @param content the content of the email
      * @param receiveEmail
      * @param bcc
      * @return 
