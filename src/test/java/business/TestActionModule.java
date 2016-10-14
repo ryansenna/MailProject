@@ -3,11 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rsenna.business;
+package business;
 
-import com.rsenna.beans.RyanEmail;
+import beans.RyanEmail;
 import org.junit.Test;
-import com.rsenna.business.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;

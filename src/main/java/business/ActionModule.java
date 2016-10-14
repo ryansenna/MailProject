@@ -1,8 +1,8 @@
 
-package com.rsenna.business;
+package business;
 
-import com.rsenna.beans.RyanEmail;
-import com.rsenna.interfaces.Mailer;
+import beans.RyanEmail;
+import interfaces.Mailer;
 import java.io.File;
 import java.util.Date;
 import java.sql.Timestamp;
@@ -110,7 +110,7 @@ public class ActionModule implements Mailer {
         ImapSslServer imapSslServer = c.configImapServer();
 
         // Display the converstaion between the application and the imap server
-        imapSslServer.setProperty("mail.debug", "true");
+        //imapSslServer.setProperty("mail.debug", "true");
         
         //Create a List of emails
         ArrayList<RyanEmail> receivedEmails = new ArrayList<RyanEmail>();

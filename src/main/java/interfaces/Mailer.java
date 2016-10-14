@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rsenna.interfaces;
+package interfaces;
 
-import com.rsenna.business.ConfigModule;
-import com.rsenna.beans.RyanEmail;
+import business.ConfigModule;
+import beans.RyanEmail;
 import java.util.ArrayList;
 import java.util.Optional;
 import jodd.mail.EmailAddress;

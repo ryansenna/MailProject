@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rsenna.business;
+package business;
 
 import jodd.mail.ImapSslServer;
 import jodd.mail.SmtpServer;
@@ -21,6 +21,9 @@ public class ConfigModule {
     private String sendEmailPwd;
     private String receiveEmail;
     private String receiveEmailPwd;
+    private String url;
+    private String user;
+    private String pass;
 
     public ConfigModule(String smtpServerName, String imapServerName,
             String sendEmail, String sendEmailPwd, String receiveEmail,
@@ -33,7 +36,17 @@ public class ConfigModule {
         this.receiveEmail = receiveEmail;
         this.receiveEmailPwd = receiveEmailPwd;
     }
-
+    
+    public ConfigModule(String smtpServerName, String imapServerName,
+            String sendEmail, String sendEmailPwd, String receiveEmail,
+            String receiveEmailPwd, String url, String user, String pass)
+    {
+        this(smtpServerName, imapServerName, sendEmail, sendEmailPwd,
+                receiveEmail, receiveEmailPwd);
+        this.url = url;
+        this.user = user;
+        this.pass = pass;
+    }
     public String getSmtpServerName() {
         return smtpServerName;
     }
@@ -58,6 +71,30 @@ public class ConfigModule {
         return receiveEmailPwd;
     }
 
+    public String getUrl() {
+        return url;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public String getPass() {
+        return pass;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public void setPass(String pass) {
+        this.pass = pass;
+    }
+    
     public void setSendEmail(String sendEmail) {
         this.sendEmail = sendEmail;
     }
