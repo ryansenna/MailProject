@@ -45,35 +45,7 @@ public class RyanEmail extends Email {
         messageNumber =0;
         rcvDate = Timestamp.valueOf(LocalDateTime.now());
     }
-    /**
-     * The method compares if two Emails are equals.
-     * MUST REDO IT.
-     * @param e
-     * @return
-     */
     
-    
-              /**
-                if (e.getAttachments() != null && this.getAttachments() != null) {
-                    if (!e.getAttachments().isEmpty() && !this.getAttachments().isEmpty()) {
-                        List<EmailAttachment> attachments = e.getAttachments();
-
-                        for (int i = 0; i < attachments.size(); i++) {
-                            if (!attachments.get(i).getName().
-                                    equalsIgnoreCase(this.getAttachments().get(i).getName())) {
-                                return false;
-                            }
-                        }
-                    }
-                    else
-                        return false;
-                } else {
-                    if(!e.getSentDateAndTime().equals(this.getSentDateAndTime()))
-                       return false;
-                }
-                *
-                * 
-                */
     public boolean compareEmails(RyanEmail e) {
         
         if (e == null) {
@@ -87,16 +59,21 @@ public class RyanEmail extends Email {
         }
         // Two Emails are equal if they were sent by the same person,
         // if they have the same subject and list of attachments.
-        if (e.getFrom().getEmail().equals(this.getFrom().getEmail())) {
-            if (e.getSubject().equalsIgnoreCase(this.getSubject())) {
-                if(e.getSentDate().equals(this.getSentDate())){
-                    if(e.getRcvDate().equals(this.getRcvDate()))
-                        return true;
-                }
-
-            }
+        if (!e.getFrom().getEmail().equals(this.getFrom().getEmail())) {
+            return false;
         }
-        return false;
+        if (!e.getSubject().equalsIgnoreCase(this.getSubject())) {
+            return false;
+        }
+        if(!e.getSentDate().equals(this.getSentDate()))
+        {
+            return false;
+        }
+        if(!e.getRcvDate().equals(this.getRcvDate()))
+        {
+            return false;
+        }
+        return true;
     }
 
     public String getFolder() {

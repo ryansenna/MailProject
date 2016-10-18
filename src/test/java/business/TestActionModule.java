@@ -243,7 +243,6 @@ public class TestActionModule {
      * are different, the tests fails
      */
     @Test
-    @Ignore
     public void testReceiveEmails() {
 
         boolean a = true;
@@ -252,7 +251,6 @@ public class TestActionModule {
                 "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab
                 = new ActionModule(c);
-            RyanEmail sentEmail = new RyanEmail();
         MailAddress[] receiver
                 = {new MailAddress("receiver.rsenna@gmail.com")};
         RyanEmail email = new RyanEmail();

@@ -25,6 +25,7 @@ public class TestEmailDAO {
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     @Test
+    @Ignore
     public void testCreate() {
         boolean thrown = false;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
@@ -37,16 +38,109 @@ public class TestEmailDAO {
         try {
             sentEmail = ab.sendEmail("Hello world", "I am Ryan 2", receiver, Optional.empty(),
                     Optional.empty(), Optional.empty(), Optional.empty());
-            
+
             EmailDAO edao = new EmailDAO(c);
-            
+
             edao.create(sentEmail); //magic line
         } catch (Exception e) {
             thrown = true;
             e.printStackTrace();
             log.error(e.getMessage());
         }
-        
+
+        assertFalse(thrown);
+    }
+
+    @Ignore
+    @Test
+    public void testCreateWithCc() {
+        boolean thrown = false;
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
+                "sender.rsenna@gmail.com", "thisistest",
+                "receiver.rsenna@gmail.com", "thisistest",
+                "jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612", "CS1333612", "secrefer");
+        ActionModule ab = new ActionModule(c);
+        MailAddress[] receiver = {new MailAddress("receiver.rsenna@gmail.com")};
+        MailAddress[] cc
+                = {new MailAddress("receiver.rsenna@gmail.com"),
+                    new MailAddress("railanderson@gmail.com")
+                };
+
+        RyanEmail sentEmail = new RyanEmail();
+        try {
+            sentEmail = ab.sendEmail("Hello world", "I am Ryan",
+                    receiver, Optional.empty(),
+                    Optional.empty(), Optional.of(cc), Optional.empty());
+
+            EmailDAO edao = new EmailDAO(c);
+
+            edao.create(sentEmail); //magic line
+        } catch (Exception e) {
+            thrown = true;
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+
+        assertFalse(thrown);
+    }
+
+    @Test
+    @Ignore
+    public void testCreateWithBcc() {
+        boolean thrown = false;
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
+                "sender.rsenna@gmail.com", "thisistest",
+                "receiver.rsenna@gmail.com", "thisistest",
+                "jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612", "CS1333612", "secrefer");
+        ActionModule ab = new ActionModule(c);
+        MailAddress[] receiver = {new MailAddress("receiver.rsenna@gmail.com")};
+        MailAddress[] bcc
+                = {new MailAddress("receiver.rsenna@gmail.com"),
+                    new MailAddress("railanderson@gmail.com")
+                };
+
+        RyanEmail sentEmail = new RyanEmail();
+        try {
+            sentEmail = ab.sendEmail("Hello world", "I am Ryan", receiver, Optional.empty(),
+                    Optional.empty(), Optional.empty(), Optional.of(bcc));
+
+            EmailDAO edao = new EmailDAO(c);
+
+            edao.create(sentEmail); //magic line
+        } catch (Exception e) {
+            thrown = true;
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+
+        assertFalse(thrown);
+    }
+
+    @Test
+    public void testCreateWithAttachments() {
+        boolean thrown = false;
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
+                "sender.rsenna@gmail.com", "thisistest",
+                "receiver.rsenna@gmail.com", "thisistest",
+                "jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612", "CS1333612", "secrefer");
+        ActionModule ab = new ActionModule(c);
+        MailAddress[] receiver = {new MailAddress("receiver.rsenna@gmail.com")};
+
+        RyanEmail sentEmail = new RyanEmail();
+        try {
+            sentEmail = ab.sendEmail("Attachment Test", "Test2", receiver,
+                    Optional.of("attachment1.jpg"), Optional.empty(),
+                    Optional.empty(), Optional.empty());
+
+            EmailDAO edao = new EmailDAO(c);
+
+            edao.create(sentEmail); //magic line
+        } catch (Exception e) {
+            thrown = true;
+            e.printStackTrace();
+            log.error(e.getMessage());
+        }
+
         assertFalse(thrown);
     }
 }
