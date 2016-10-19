@@ -14,7 +14,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.*;
-import jodd.mail.EmailAttachment;
+import jodd.mail.*;
+import jodd.util.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +27,9 @@ public class EmailDAO {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private ConfigModule c;
-    private Connection conn;
 
     public EmailDAO(ConfigModule c) throws SQLException {
         this.c = c;
-        conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
     }
 
     /**
@@ -56,7 +55,8 @@ public class EmailDAO {
         String insertIntoEmailAddesses
                 = "INSERT INTO EMAILADDRESS(ADDRESS, EMAILTYPE, EMAILID, SENTADDRESS) VALUES(?,?,?,?)";
 
-        try (PreparedStatement psEmail = conn.prepareStatement(insertIntoEmail);
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement psEmail = conn.prepareStatement(insertIntoEmail);
                 PreparedStatement psFolder = conn.prepareStatement(insertIntoFolder);
                 PreparedStatement psMessages = conn.prepareStatement(insertIntoMessages);
                 PreparedStatement psAttachment = conn.prepareStatement(insertIntoAttachments);
@@ -82,7 +82,7 @@ public class EmailDAO {
             //load CC addresses into the Database
             loadCCAddressesToDb(psEmailA, email, emailId);
             //load BCC addresses into the Database
-            loadBCCAddressesToDb(psEmailA, email,emailId);
+            loadBCCAddressesToDb(psEmailA, email, emailId);
             //load the messages into the Database
             loadMessagesToDb(psMessages, email, emailId);
 
@@ -92,6 +92,68 @@ public class EmailDAO {
             }
         }
         return numRowAffected;
+    }
+
+    /**
+     * This method deletes an Email from the database based on its id.
+     *
+     * @param email
+     * @return the number of rows affected
+     */
+    public int delete(int id) throws SQLException {
+        int numOfRowsAffected = 0;
+
+        String query = "DELETE FROM EMAIL WHERE EMAILID = ?";
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, id);
+            numOfRowsAffected = ps.executeUpdate();
+        }
+        return numOfRowsAffected;
+    }
+
+    /**
+     * This method will retrieve all Emails from the database.
+     *
+     * @return the list of emails.
+     * @throws SQLException
+     */
+    public List<RyanEmail> findAll() throws SQLException {
+        List<RyanEmail> emails = new ArrayList<RyanEmail>();
+
+        String query = "SELECT * FROM EMAIL";
+
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();) {
+            while (rs.next()) {
+                emails.add(createEmail(rs));
+            }
+
+        }
+        return emails;
+    }
+    /**
+     * This method will find a particular email based on its id.
+     * @param id
+     * @return the email found
+     * @throws SQLException 
+     */
+    public RyanEmail findEmail(int id) throws SQLException {
+
+        RyanEmail email = new RyanEmail();
+
+        String query = "SELECT * FROM EMAIL WHERE EMAILID = ?";
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next()) {
+                    email = createEmail(rs);
+                }
+            }
+        }
+        return email;
     }
 
     /**
@@ -121,7 +183,8 @@ public class EmailDAO {
     private int getEmailIdFromDb(Timestamp t) throws SQLException {
 
         String query = "SELECT EMAILID FROM EMAIL WHERE EMAILSENTDATE = ?";
-        try (PreparedStatement ps = conn.prepareStatement(query);) {
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setTimestamp(1, t);
             try (ResultSet rs = ps.executeQuery();) {
                 if (rs.next()) {
@@ -133,10 +196,18 @@ public class EmailDAO {
         }
     }
 
+    /**
+     * This method will load all the email addresses of type TO into the Db.
+     *
+     * @param psEmailA The prepared statemnt
+     * @param email the email object
+     * @param emailId the email id in the db
+     * @throws SQLException
+     */
     private void loadToAddressesToDb(PreparedStatement psEmailA,
             RyanEmail email, int emailId)
             throws SQLException {
-        
+
         for (int k = 0; k < email.getTo().length; k++) {
             //load the To field address
             psEmailA.setString(1, email.getTo()[k].getEmail());
@@ -152,6 +223,14 @@ public class EmailDAO {
 
     }
 
+    /**
+     * This method will load the messages of an email into the db.
+     *
+     * @param psMessages
+     * @param email
+     * @param emailId
+     * @throws SQLException
+     */
     private void loadMessagesToDb(PreparedStatement psMessages,
             RyanEmail email, int emailId) throws SQLException {
         for (int i = 0; i < email.getAllMessages().size(); i++) {
@@ -161,8 +240,16 @@ public class EmailDAO {
         }
     }
 
+    /**
+     * This method will load all the attachments of an email into the db.
+     *
+     * @param psAttachment
+     * @param emailAttachments
+     * @param emailId
+     * @throws SQLException
+     */
     private void loadAttachmentsToDb(PreparedStatement psAttachment,
-            List<byte[]> emailAttachments,int emailId) throws SQLException {
+            List<byte[]> emailAttachments, int emailId) throws SQLException {
 
         //get the message Id form the messages table
         int mId = getMessageIdFromDb(emailId);
@@ -174,10 +261,18 @@ public class EmailDAO {
         }
     }
 
+    /**
+     * This method will find the message Id from db based on the email id.
+     *
+     * @param emailId
+     * @return message id.
+     * @throws SQLException
+     */
     private int getMessageIdFromDb(int emailId) throws SQLException {
         String query = "SELECT MESSAGEID FROM MESSAGES WHERE EMAILID = ?";
-        
-         try (PreparedStatement ps = conn.prepareStatement(query);) {
+
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, emailId);
             try (ResultSet rs = ps.executeQuery();) {
                 if (rs.next()) {
@@ -189,11 +284,153 @@ public class EmailDAO {
         }
     }
 
-    private void loadCCAddressesToDb(PreparedStatement psEmailA, 
-            RyanEmail email, int emailId) throws SQLException
-    {
-        for(int i = 0; i < email.getCc().length; i++)
-        {
+    /**
+     * This method will find the text related to an email from the db.
+     *
+     * @param emailId
+     * @return the email message
+     * @throws SQLException
+     */
+    private EmailMessage getMessageTextFromDb(int emailId) throws SQLException {
+        String query = "SELECT EMAILTEXT FROM MESSAGES WHERE EMAILID = ?";
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, emailId);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next()) {
+                    return new EmailMessage(rs.getString(1), MimeTypes.MIME_TEXT_PLAIN);
+                } else {
+                    return new EmailMessage("", MimeTypes.MIME_TEXT_PLAIN);
+                }
+            }
+        }
+    }
+
+    /**
+     * This method will find the folder name related to a email id in the db.
+     *
+     * @param emailId
+     * @return the folder name
+     * @throws SQLException
+     */
+    private String getFolderNameFromDb(int emailId) throws SQLException {
+        String query = "SELECT FOLDERNAME FROM FOLDER WHERE EMAILID = ?";
+
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, emailId);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next()) {
+                    return rs.getString(1);
+                } else {
+                    return "";
+                }
+            }
+        }
+    }
+
+    /**
+     * this method will find the receiver addresses from the db.
+     *
+     * @param emailId
+     * @return a list of mail addresses.
+     * @throws SQLException
+     */
+    private MailAddress[] getReceiverAddressFromDb(int emailId) throws SQLException {
+        String query = "SELECT ADDRESS FROM EMAILADDRESS WHERE EMAILID = ? AND EMAILTYPE = 'TO'";
+        List<MailAddress> ma = new ArrayList<MailAddress>();
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, emailId);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    ma.add(new MailAddress(rs.getString("address")));
+                }
+            }
+        }
+        MailAddress[] m = new MailAddress[ma.size()];
+        return ma.toArray(m);
+    }
+
+    /**
+     * This method will find all the cc addresses from the db.
+     *
+     * @param emailId
+     * @return a list of cc addresses.
+     * @throws SQLException
+     */
+    private MailAddress[] getCCAddressFromDb(int emailId) throws SQLException {
+        String query = "SELECT ADDRESS FROM EMAILADDRESS WHERE EMAILID = ? AND EMAILTYPE = 'cc'";
+        List<MailAddress> ma = new ArrayList<MailAddress>();
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, emailId);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    ma.add(new MailAddress(rs.getString("address")));
+                }
+            }
+        }
+        MailAddress[] m = new MailAddress[ma.size()];
+        return ma.toArray(m);
+    }
+
+    /**
+     * This method will find all the bcc addresses from the db.
+     *
+     * @param emailId
+     * @return a list of bcc addresses.
+     * @throws SQLException
+     */
+    private MailAddress[] getBccAddressFromDb(int emailId) throws SQLException {
+        String query = "SELECT ADDRESS FROM EMAILADDRESS WHERE EMAILID = ? AND EMAILTYPE = 'bcc'";
+        List<MailAddress> ma = new ArrayList<MailAddress>();
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, emailId);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    ma.add(new MailAddress(rs.getString("address")));
+                }
+            }
+        }
+        MailAddress[] m = new MailAddress[ma.size()];
+        return ma.toArray(m);
+    }
+
+    /**
+     * This method will find all the attachments related to a message id.
+     *
+     * @param mId
+     * @return a list of attachments
+     * @throws SQLException
+     */
+    private List<byte[]> getAttachmentFromDb(int mId) throws SQLException {
+        String query = "SELECT MESSAGEFILE FROM ATTACHMENTS WHERE MESSAGEID = ?";
+        List<byte[]> attachments = new ArrayList<byte[]>();
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setInt(1, mId);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    attachments.add(rs.getBytes("messageFile"));
+                }
+            }
+        }
+        return attachments;
+    }
+
+    /**
+     * This method will load all the cc addresses to Db.
+     *
+     * @param psEmailA the prepare stmt
+     * @param email the email obj.
+     * @param emailId the email id.
+     * @throws SQLException
+     */
+    private void loadCCAddressesToDb(PreparedStatement psEmailA,
+            RyanEmail email, int emailId) throws SQLException {
+        for (int i = 0; i < email.getCc().length; i++) {
             //load the To field address
             psEmailA.setString(1, email.getCc()[i].getEmail());
             //load the type of addresses
@@ -207,11 +444,17 @@ public class EmailDAO {
         }
     }
 
+    /**
+     * This method will load all the bcc addresses to the database.
+     *
+     * @param psEmailA
+     * @param email
+     * @param emailId
+     * @throws SQLException
+     */
     private void loadBCCAddressesToDb(PreparedStatement psEmailA,
-            RyanEmail email, int emailId) throws SQLException
-    {
-        for(int i = 0; i < email.getBcc().length; i++)
-        {
+            RyanEmail email, int emailId) throws SQLException {
+        for (int i = 0; i < email.getBcc().length; i++) {
             //load the To field address
             psEmailA.setString(1, email.getBcc()[i].getEmail());
             //load the type of addresses
@@ -223,5 +466,41 @@ public class EmailDAO {
             //exec.
             psEmailA.executeUpdate();
         }
+    }
+
+    /**
+     * This method will create an Email based on the result set(row) passed
+     * through.
+     *
+     * @param rs the row.
+     * @return the email created.
+     * @throws SQLException
+     */
+    private RyanEmail createEmail(ResultSet rs) throws SQLException {
+
+        int emailId = rs.getInt("emailId");
+        int messageId = getMessageIdFromDb(emailId);
+        RyanEmail email = new RyanEmail();
+        email.setSubject(rs.getString("emailsubject"));
+        email.setSentDate(rs.getTimestamp("emailSentDate"));
+        email.setRcvDate(rs.getTimestamp("emailRcvdDate"));
+        email.setFrom(new MailAddress(rs.getString("senderAddress")));
+        // get the messages at the messages table
+        email.addMessage(getMessageTextFromDb(emailId));
+        // get the folder from the folder table.
+        email.setFolder(getFolderNameFromDb(emailId));
+        //get the TO addresses from the emailaddress table.
+        email.setTo(getReceiverAddressFromDb(emailId));
+        //get the CC addresses from the emailaddress table
+        email.setCc(getCCAddressFromDb(emailId));
+        //get the bcc addresses from the emailaddress table.
+        email.setBcc(getBccAddressFromDb(emailId));
+        //get the attachments from the attachments table
+        List<byte[]> a = getAttachmentFromDb(messageId);
+        for (int i = 0; i < a.size(); i++) {
+            email.attach(EmailAttachment.attachment().bytes(a.get(i)));
+        }
+
+        return email;
     }
 }

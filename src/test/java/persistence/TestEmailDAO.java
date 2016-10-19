@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.Optional;
 import jodd.mail.MailAddress;
 import org.junit.*;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,6 +118,7 @@ public class TestEmailDAO {
     }
 
     @Test
+    @Ignore
     public void testCreateWithAttachments() {
         boolean thrown = false;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
@@ -142,5 +144,23 @@ public class TestEmailDAO {
         }
 
         assertFalse(thrown);
+    }
+
+    @Test
+    public void testDelete() {
+        
+        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
+                "sender.rsenna@gmail.com", "thisistest",
+                "receiver.rsenna@gmail.com", "thisistest",
+                "jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612", "CS1333612", "secrefer");
+        int rowAff = 0;
+        try {
+            EmailDAO edao = new EmailDAO(c);
+            rowAff = edao.delete(17);
+        } catch (Exception e){
+            log.error(e.getMessage());
+        }
+        
+        assertEquals(1,rowAff);
     }
 }
