@@ -24,7 +24,19 @@ public class ConfigModule {
     private String url;
     private String user;
     private String pass;
-
+    
+    public ConfigModule(){
+        
+        smtpServerName = "";
+        imapServerName = "";
+        sendEmail = "";
+        sendEmailPwd = "";
+        receiveEmail = "";
+        receiveEmailPwd="";
+        url= "";
+        user= "";
+        pass = "";
+    }
     public ConfigModule(String smtpServerName, String imapServerName,
             String sendEmail, String sendEmailPwd, String receiveEmail,
             String receiveEmailPwd)

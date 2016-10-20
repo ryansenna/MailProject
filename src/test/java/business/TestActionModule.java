@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 import jodd.mail.MailAddress;
 import org.junit.Ignore;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -22,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 public class TestActionModule {
 
     @Test
+    @Ignore
     public void testSend() {
 
         boolean thrown = false;
@@ -243,9 +245,10 @@ public class TestActionModule {
      * are different, the tests fails
      */
     @Test
+    @Ignore
     public void testReceiveEmails() {
 
-        boolean a = true;
+        boolean a = false;
         ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
                 "sender.rsenna@gmail.com", "thisistest",
                 "receiver.rsenna@gmail.com", "thisistest");
@@ -267,7 +270,7 @@ public class TestActionModule {
 
         a = receivedEmails.get(0).compareEmails(email);
 
-        assertFalse(a);
+        assertTrue(a);
     }
 
 }
