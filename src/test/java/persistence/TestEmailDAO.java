@@ -30,6 +30,9 @@ public class TestEmailDAO {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
+    /**
+     * This method will recreate the Database from the SQL file in it.
+     */
     @Before
     public void recreateDB() {
         ConfigModule c = new ConfigModule();
@@ -46,6 +49,9 @@ public class TestEmailDAO {
 
     }
 
+    /**
+     * This method will test the creation of records in my database.
+     */
     @Test
     @Ignore
     public void testCreate() {
@@ -75,7 +81,11 @@ public class TestEmailDAO {
 
         assertEquals("test create: ", 4, r);
     }
-
+    
+    /**
+     * This method will test the creation of an email record that contains cc
+     * which affects the number of rows affected in the db.
+     */
     @Test
     @Ignore
     public void testCreateWithCc() {
@@ -112,6 +122,10 @@ public class TestEmailDAO {
         assertEquals("Test with CC: ", r, 6);
     }
 
+    /**
+     * This method will test the creation of an email record that contains bcc
+     * which affects the number of rows affected in the db.
+     */
     @Test
     @Ignore
     public void testCreateWithBcc() {
@@ -146,7 +160,10 @@ public class TestEmailDAO {
 
         assertEquals("Test Bcc: ", r, 6);
     }
-
+    /**
+     * This method will test the creation of an email record that contains attachments
+     * which affects the number of rows affected in the db.
+     */
     @Test
     @Ignore
     public void testCreateWithAttachments() {
@@ -178,7 +195,9 @@ public class TestEmailDAO {
 
         assertEquals("Test with Attachments: ", r, 5);
     }
-
+    /**
+     * This method tests the deletion of a record in the database.
+     */
     @Test
     @Ignore
     public void testDelete() {
@@ -198,6 +217,9 @@ public class TestEmailDAO {
         assertEquals(1, rowAff);
     }
 
+    /**
+     * This method tests retrieving a particular record from the database.
+     */
     @Test
     @Ignore
     public void testFind() {
@@ -227,7 +249,10 @@ public class TestEmailDAO {
         //assert if they are equal.
         assertTrue(b);
     }
-
+    
+    /**
+     * This method tests retrieving all the records from the database.
+     */
     @Test
     @Ignore
     public void testFindAll() {
