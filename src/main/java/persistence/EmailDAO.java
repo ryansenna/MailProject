@@ -30,6 +30,7 @@ public class EmailDAO {
 
     public EmailDAO(ConfigModule c) throws SQLException {
         this.c = c;
+        //buildDB();
     }
 
     public void buildDB() {
