@@ -43,7 +43,6 @@ public class PropertiesIO {
             try (InputStream propFileStream = newInputStream(txtFile);) {
                 prop.load(propFileStream);
             }
-            mailConfig.setUserName(prop.getProperty("userName"));
             mailConfig.setPassword(prop.getProperty("password"));
             mailConfig.setUserEmailAddress(prop.getProperty("userEmailAddress"));
             mailConfig.setImapServerName(prop.getProperty("imap"));
@@ -65,7 +64,6 @@ public class PropertiesIO {
 
         Properties prop = new Properties();
 
-        prop.setProperty("userName", mailConfig.getUserName());
         prop.setProperty("password", mailConfig.getPassword());
         prop.setProperty("userEmailAddress", mailConfig.getUserEmailAddress());
         prop.setProperty("smtp", mailConfig.getSmtpServerName());

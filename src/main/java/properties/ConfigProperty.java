@@ -14,23 +14,21 @@ import javafx.beans.property.StringProperty;
  */
 public class ConfigProperty {
 
-    private final StringProperty userName;
     private final StringProperty userEmailAddress;
     private final StringProperty password;
     private final StringProperty smtpServerName;
     private final StringProperty imapServerName;
+    private final StringProperty dbUsername;
+    private final StringProperty dbPass;
 
     public ConfigProperty() {
         super();
-        this.userName = new SimpleStringProperty("");
         this.userEmailAddress = new SimpleStringProperty("");
         this.password = new SimpleStringProperty("");
         this.imapServerName = new SimpleStringProperty("");
         this.smtpServerName = new SimpleStringProperty("");
-    }
-
-    public String getUserName() {
-        return userName.get();
+        this.dbUsername = new SimpleStringProperty("");
+        this.dbPass = new SimpleStringProperty("");
     }
 
     public String getUserEmailAddress() {
@@ -49,8 +47,12 @@ public class ConfigProperty {
         return imapServerName.get();
     }
 
-    public void setUserName(String s) {
-        userName.set(s);
+    public String getDbUsername() {
+        return dbUsername.get();
+    }
+
+    public String getDbPass() {
+        return dbPass.get();
     }
 
     public void setUserEmailAddress(String s) {
@@ -69,9 +71,41 @@ public class ConfigProperty {
         imapServerName.set(s);
     }
 
+    public void setDbUsername(String s) {
+        dbUsername.set(s);
+    }
+
+    public void setDbPass(String s) {
+        dbPass.set(s);
+    }
+
+    public StringProperty userEmailAddress() {
+        return userEmailAddress;
+    }
+
+    public StringProperty password() {
+        return password;
+    }
+
+    public StringProperty smtpServerName() {
+        return smtpServerName;
+    }
+
+    public StringProperty imapServerName() {
+        return imapServerName;
+    }
+
+    public StringProperty dbUsername() {
+        return dbUsername;
+    }
+
+    public StringProperty dbPass() {
+        return dbPass;
+    }
+
     @Override
     public String toString() {
-        return "MailConfigProperties\n{\t" + "userName=" + userName.get() + "\n\tuserEmailAddress=" + userEmailAddress.get() + "\n\tpassword=" + password.get() + "\n}";
+        return "MailConfigProperties\n{\t" + "\n\tuserEmailAddress=" + userEmailAddress.get() + "\n\tpassword=" + password.get() + "\n}";
     }
 
 }
