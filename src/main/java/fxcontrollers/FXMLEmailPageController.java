@@ -9,6 +9,6 @@ package fxcontrollers;
  *
  * @author Railanderson Sena
  */
-public class EmailPageFXMLController {
+public class FXMLEmailPageController {
     
 }

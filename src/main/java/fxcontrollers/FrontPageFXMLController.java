@@ -48,7 +48,7 @@ public class FrontPageFXMLController {
     
     private Scene scene;
     private Stage stage;
-    private EmailPageFXMLController epc;
+    private FXMLEmailPageController epc;
     private ConfigProperty cp;// model for the properties.
     
     /**
@@ -67,7 +67,7 @@ public class FrontPageFXMLController {
      * @param stage
      * @param epc 
      */
-    public void setSceneStateSecPage(Scene scene, Stage stage, EmailPageFXMLController epc){
+    public void setSceneStateSecPage(Scene scene, Stage stage, FXMLEmailPageController epc){
         this.scene = scene;
         this.stage = stage;
         this.epc = epc;
