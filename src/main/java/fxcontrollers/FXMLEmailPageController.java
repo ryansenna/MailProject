@@ -55,9 +55,6 @@ public class FXMLEmailPageController {
 
     public FXMLEmailPageController() {
         cp = new ConfigProperty();// create a new ConfigProperty.
-        c = cp.toConfigModule();// create a new ConfigModule
-        edao = new EmailDAO(c);// Create an EDAO for persistence
-        am = new ActionModule(c);// create a module for sending and receiving.
     }
 
     @FXML
@@ -75,21 +72,27 @@ public class FXMLEmailPageController {
 
         // GET WHAT FIELDS ARE NULL AND WHAT ARE NOT.
         // RIGHT NOW ASSUME YOU HAVE THE REQUIRED ONES.
+        c = cp.toConfigModule();// create a new ConfigModule
+        edao = new EmailDAO(c);// Create an EDAO for persistence
+        am = new ActionModule(c);// create a module for sending and receiving.
 
         log.error("THIS VAR WAS LOADED :" + c.getSmtpServerName());
-        String subject = this.getSubject();
-        String message = Jsoup.parse(messageField.getHtmlText()).text();
-        RyanEmail sentEmail = new RyanEmail();
 
         try {
-            MailAddress[] toAddresses = this.getMailAddresses(toField);// get the To Addresses.
+            String subject = this.getSubject();
+            String message = this.getMessage();
+            RyanEmail sentEmail = new RyanEmail();
+            MailAddress[] toAddresses = this.getToField(toField);// get the To Addresses.
+            MailAddress[] ccAddresses = this.getMailAddresses(ccField);
+            MailAddress[] bccAddresses = this.getMailAddresses(bccField);
             sentEmail = am.sendEmail(subject, message, toAddresses, Optional.empty(),
                     Optional.empty(), Optional.empty(), Optional.empty());
             edao.create(sentEmail);
-        } catch(IllegalArgumentException iae){
-            alertUserMistake(iae.getMessage());
+            alertSuccessful();
+        } catch (IllegalArgumentException iae) {
+            alertUserMistake(iae.getMessage());//"One of your email fields was not properly set.");
             clearFields();
-        }catch (SQLException sqlE) {
+        } catch (SQLException sqlE) {
             log.error("Error 200: The message was not properly saved into the database.");
             sqlE.printStackTrace();
         } catch (Exception ex) {
@@ -120,7 +123,7 @@ public class FXMLEmailPageController {
      *
      * @return an array with emails from the to field.
      */
-    private MailAddress[] getMailAddresses(TextField field) {
+    private MailAddress[] getToField(TextField field) {
         Validator v = new Validator();
         String addressesAsString = field.getText();// get the raw addresses
 
@@ -130,22 +133,33 @@ public class FXMLEmailPageController {
 
             // loop trough the string addresses, adding to my return list.
             for (int i = 0; i < addresses.length; i++) {
-                MailAddress m = new MailAddress(addresses[i]);
+                if (addresses[i].isEmpty()) {
+                    throw new IllegalArgumentException("Error 303: To Field is Mandatory");
+                }
+                MailAddress m = new MailAddress(addresses[i].trim());
                 returnList[i] = m;
             }
             return returnList;// if they are all valid, return that list.
         }
         //otherwise, throw an exception.
-        throw new IllegalArgumentException ("Error 300: one of The Email Fields are not properly set.");
+        throw new IllegalArgumentException("Error 300: one of The Email Fields are not properly set.");
+    }
+    
+    private MailAddress[] getMailAddresses(TextField field){
+        
     }
 
     private String getSubject() {
-        // >>>>>>> VALIDATION HERE <<<<<<<
-
-        return subjectField.getText();
+        Validator v = new Validator();
+        String s = v.stripTags(subjectField.getText()).trim();
+        if (s.isEmpty()) {
+            throw new IllegalArgumentException("Error 301: Subject Field is mandatory");
+        }
+        return s;
     }
 
     private void clearFields() {
+        toField.setText("");
         subjectField.setText("");
         messageField.setHtmlText("");
     }
@@ -155,6 +169,24 @@ public class FXMLEmailPageController {
         alert.setTitle("Somethig went wrong");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void alertSuccessful() {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Ryan's Email Service");
+        alert.setContentText("Your message was sent.");
+        alert.showAndWait();
+    }
+
+    /**
+     * This method will get the plain text message from the html message field.
+     *
+     * @return
+     */
+    private String getMessage() {
+        Validator v = new Validator();
+        String s = v.stripTags(subjectField.getText()).trim();
+        return s;
     }
 
 }

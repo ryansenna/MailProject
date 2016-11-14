@@ -7,6 +7,7 @@ package business;
 
 import javafx.scene.control.TextField;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.jsoup.Jsoup;
 
 /**
  *
@@ -40,11 +41,14 @@ public class Validator {
         String [] addresses = s.split(",");
         
         for(int i = 0; i < addresses.length; i++){
-            if(!isValidEmailAddress(addresses[i]))
+            if(!isValidEmailAddress(addresses[i].trim()))
                 return false;
         }
         return true;
     }
     
+    public String stripTags(String htmlMessage){
+        return Jsoup.parse(htmlMessage).text();
+    }
     
 }
