@@ -8,12 +8,15 @@ package fxcontrollers;
 import beans.RyanEmail;
 import business.ActionModule;
 import business.ConfigModule;
+import business.Validator;
 import fileIO.PropertiesIO;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
 import javafx.scene.web.HTMLEditor;
 import jodd.mail.MailAddress;
@@ -39,19 +42,22 @@ public class FXMLEmailPageController {
 
     @FXML
     private TextField bccField;
-    
+
     @FXML
     private HTMLEditor messageField;
-    
+
     // a logger for erros
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private ConfigProperty cp;
     private EmailDAO edao;
     private ActionModule am;
     private ConfigModule c;
-    
+
     public FXMLEmailPageController() {
         cp = new ConfigProperty();// create a new ConfigProperty.
+        c = cp.toConfigModule();// create a new ConfigModule
+        edao = new EmailDAO(c);// Create an EDAO for persistence
+        am = new ActionModule(c);// create a module for sending and receiving.
     }
 
     @FXML
@@ -66,82 +72,89 @@ public class FXMLEmailPageController {
 
     @FXML
     void onSendClicked(ActionEvent event) {
-        
+
         // GET WHAT FIELDS ARE NULL AND WHAT ARE NOT.
         // RIGHT NOW ASSUME YOU HAVE THE REQUIRED ONES.
-        
-        c = cp.toConfigModule();// create a new ConfigModule
-        edao = new EmailDAO(c);// Create an EDAO for persistence
-        am = new ActionModule(c);// create a module for sending and receiving.
-        
+
         log.error("THIS VAR WAS LOADED :" + c.getSmtpServerName());
-        MailAddress[] toAddresses = this.getMailAddresses(toField);// get the To Addresses.
         String subject = this.getSubject();
         String message = Jsoup.parse(messageField.getHtmlText()).text();
         RyanEmail sentEmail = new RyanEmail();
-        
+
         try {
+            MailAddress[] toAddresses = this.getMailAddresses(toField);// get the To Addresses.
             sentEmail = am.sendEmail(subject, message, toAddresses, Optional.empty(),
                     Optional.empty(), Optional.empty(), Optional.empty());
             edao.create(sentEmail);
-        }catch (SQLException sqlE){
+        } catch(IllegalArgumentException iae){
+            alertUserMistake(iae.getMessage());
+            clearFields();
+        }catch (SQLException sqlE) {
             log.error("Error 200: The message was not properly saved into the database.");
             sqlE.printStackTrace();
-        } 
-        catch (Exception ex) {
+        } catch (Exception ex) {
             log.error("Error 101: The Message was not sent.");
             ex.printStackTrace();
-        }
-       finally{
+        } finally {
             clearFields();
         }
-        
+
     }
 
     public boolean loadCPProperties() {
         PropertiesIO pm = new PropertiesIO();
         boolean result = false;// if the properties were loaded or not.
-        
+
         try {
-            result =  pm.loadTextProperties(cp, "", "MailConfig");
+            result = pm.loadTextProperties(cp, "", "MailConfig");
             log.error("THIS VAR WAS LOADED: " + cp.getSmtpServerName());
         } catch (IOException ex) {
             log.error("Error 100: The properties were not loaded.");
         }
         return result;// if it is true, the properties were loaded.
     }
+
     /**
-     * This helper method will get the raw input from a field and
-     * transform into a workable Mail Address array.
+     * This helper method will get the raw input from a field and transform into
+     * a workable Mail Address array.
+     *
      * @return an array with emails from the to field.
      */
-    private MailAddress[] getMailAddresses(TextField field){
+    private MailAddress[] getMailAddresses(TextField field) {
+        Validator v = new Validator();
         String addressesAsString = field.getText();// get the raw addresses
-        
-        // >>>>>>> VALIDATION HERE <<<<<<<
-        
-        
-        String[] addresses = addressesAsString.split(",");// split into an array
-        MailAddress[] returnList = new MailAddress[addresses.length];// create my list of Mail Addresses.
-        
-        // loop trough the string addresses, adding to my return list.
-        for(int i =0; i < addresses.length; i++){
-            MailAddress m = new MailAddress(addresses[i]);
-            returnList[i] = m;
+
+        if (v.isEmailAddressFieldValid(field)) {// if the addresses field are valid.
+            String[] addresses = addressesAsString.split(",");// split into an array
+            MailAddress[] returnList = new MailAddress[addresses.length];// create my list of Mail Addresses.
+
+            // loop trough the string addresses, adding to my return list.
+            for (int i = 0; i < addresses.length; i++) {
+                MailAddress m = new MailAddress(addresses[i]);
+                returnList[i] = m;
+            }
+            return returnList;// if they are all valid, return that list.
         }
-        return returnList;
+        //otherwise, throw an exception.
+        throw new IllegalArgumentException ("Error 300: one of The Email Fields are not properly set.");
     }
-    
-    private String getSubject()
-    {
+
+    private String getSubject() {
         // >>>>>>> VALIDATION HERE <<<<<<<
-        
+
         return subjectField.getText();
     }
-    
-    private void clearFields(){
+
+    private void clearFields() {
         subjectField.setText("");
         messageField.setHtmlText("");
+    }
+
+    private void alertUserMistake(String message) {
+        Alert alert = new Alert(AlertType.INFORMATION);
+        alert.setTitle("Somethig went wrong");
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
 }
