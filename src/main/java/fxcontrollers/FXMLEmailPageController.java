@@ -86,7 +86,7 @@ public class FXMLEmailPageController {
             MailAddress[] ccAddresses = this.getMailAddresses(ccField);
             MailAddress[] bccAddresses = this.getMailAddresses(bccField);
             sentEmail = am.sendEmail(subject, message, toAddresses, Optional.empty(),
-                    Optional.empty(), Optional.empty(), Optional.empty());
+                    Optional.empty(), Optional.of(ccAddresses), Optional.of(bccAddresses));
             edao.create(sentEmail);
             alertSuccessful();
         } catch (IllegalArgumentException iae) {
@@ -144,9 +144,24 @@ public class FXMLEmailPageController {
         //otherwise, throw an exception.
         throw new IllegalArgumentException("Error 300: one of The Email Fields are not properly set.");
     }
-    
-    private MailAddress[] getMailAddresses(TextField field){
-        
+
+    private MailAddress[] getMailAddresses(TextField field) {
+        Validator v = new Validator();
+        String addressesAsString = field.getText();// get the raw addresses
+
+        if (v.isEmailAddressFieldValid(field)) {// if the addresses field are valid.
+            String[] addresses = addressesAsString.split(",");// split into an array
+            MailAddress[] returnList = new MailAddress[addresses.length];// create my list of Mail Addresses.
+
+            // loop trough the string addresses, adding to my return list.
+            for (int i = 0; i < addresses.length; i++) { 
+                MailAddress m = new MailAddress(addresses[i].trim());
+                returnList[i] = m;
+            }
+            return returnList;// if they are all valid, return that list.
+        }
+        //otherwise, throw an exception.
+        throw new IllegalArgumentException("Error 300: one of The Email Fields are not properly set.");
     }
 
     private String getSubject() {

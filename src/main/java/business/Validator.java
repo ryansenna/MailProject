@@ -37,7 +37,10 @@ public class Validator {
      * @return 
      */
     public boolean isEmailAddressFieldValid(TextField field){
-        String s = field.getText();
+        String s = field.getText().trim();
+        // if it is one of the cc or bcc fields, I still wanna evaluate to true.
+        if(s.isEmpty())
+            return true;
         String [] addresses = s.split(",");
         
         for(int i = 0; i < addresses.length; i++){
