@@ -59,7 +59,7 @@ public class FXMLEmailPageController {
 
     @FXML
     void onAttachmentsClicked(ActionEvent event) {
-
+        
     }
 
     @FXML
