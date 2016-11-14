@@ -18,7 +18,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.HTMLEditor?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxcontrollers.FXMLEmailPageController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -55,7 +55,7 @@
          <bottom>
             <AnchorPane prefHeight="364.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
                <children>
-                  <HTMLEditor htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutX="1.0" layoutY="150.0" prefHeight="200.0" prefWidth="1000.0" />
+                  <HTMLEditor fx:id="messageField" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutX="1.0" layoutY="150.0" prefHeight="200.0" prefWidth="1000.0" />
                   <Separator layoutY="152.0" prefHeight="0.0" prefWidth="991.0" />
                   <GridPane hgap="20.0" layoutY="-1.0" prefHeight="151.0" prefWidth="1000.0">
                     <columnConstraints>
@@ -108,13 +108,13 @@
                         </HBox>
                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="20.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                            <children>
-                              <Button mnemonicParsing="false" text="Attachments" />
-                              <Button mnemonicParsing="false" text="Embed">
+                              <Button mnemonicParsing="false" onAction="#onAttachmentsClicked" text="Attachments" />
+                              <Button mnemonicParsing="false" onAction="#onEmbeddedClicked" text="Embed">
                                  <font>
                                     <Font name="Arial Bold" size="12.0" />
                                  </font>
                               </Button>
-                              <Button mnemonicParsing="false" text="Send" />
+                              <Button mnemonicParsing="false" onAction="#onSendClicked" text="Send" />
                            </children>
                         </HBox>
                         <HBox prefHeight="31.0" prefWidth="912.0" GridPane.columnIndex="1">

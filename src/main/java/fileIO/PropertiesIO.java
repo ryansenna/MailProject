@@ -39,7 +39,7 @@ public class PropertiesIO {
         Path txtFile = get(path, propFileName + ".properties");
 
         // File must exist
-        if (Files.exists(txtFile)) {
+        //if (Files.exists(txtFile)) {
             try (InputStream propFileStream = newInputStream(txtFile);) {
                 prop.load(propFileStream);
             }
@@ -47,9 +47,11 @@ public class PropertiesIO {
             mailConfig.setUserEmailAddress(prop.getProperty("userEmailAddress"));
             mailConfig.setImapServerName(prop.getProperty("imap"));
             mailConfig.setSmtpServerName(prop.getProperty("smtp"));
+            mailConfig.setDbUsername(prop.getProperty("dbUsername"));
+            mailConfig.setDbPass(prop.getProperty("dbPass"));
 
             found = true;
-        }
+        //}
         return found;
     }
     /**
@@ -68,6 +70,8 @@ public class PropertiesIO {
         prop.setProperty("userEmailAddress", mailConfig.getUserEmailAddress());
         prop.setProperty("smtp", mailConfig.getSmtpServerName());
         prop.setProperty("imap", mailConfig.getImapServerName());
+        prop.setProperty("dbUsername", mailConfig.getDbUsername());
+        prop.setProperty("dbPass", mailConfig.getDbPass());
 
         Path txtFile = get(path, propFileName + ".properties");
 

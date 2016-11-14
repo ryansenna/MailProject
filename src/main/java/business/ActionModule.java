@@ -57,9 +57,6 @@ public class ActionModule implements Mailer {
         //Create SMTP Server
         SmtpServer<SmtpSslServer> smtpServer
                 = c.configSmtpServer();
-
-
-
         //Create an Email
         RyanEmail email = new RyanEmail();
         if (cc.isPresent() && bcc.isPresent()) {// create with cc and bcc if exists

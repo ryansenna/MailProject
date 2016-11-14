@@ -5,6 +5,7 @@
  */
 package properties;
 
+import business.ConfigModule;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -102,7 +103,28 @@ public class ConfigProperty {
     public StringProperty dbPass() {
         return dbPass;
     }
-
+    
+    /**
+     * This method will turn this Config Property into a Config Module
+     * in order to be used with the business classes.
+     * @return 
+     */
+    public ConfigModule toConfigModule(){
+        
+        ConfigModule c = new ConfigModule();
+        
+        c.setSendEmail(this.getUserEmailAddress());
+        c.setSendEmailPwd(this.getPassword());
+        c.setReceiveEmail(this.getUserEmailAddress());
+        c.setReceiveEmailPwd(this.getPassword());
+        c.setSmtpServerName(this.getSmtpServerName());
+        c.setImapServerName(this.getImapServerName());
+        c.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
+        c.setUser(this.getDbUsername());
+        c.setPass(this.getDbPass());
+         
+        return c;
+    }
     @Override
     public String toString() {
         return "MailConfigProperties\n{\t" + "\n\tuserEmailAddress=" + userEmailAddress.get() + "\n\tpassword=" + password.get() + "\n}";

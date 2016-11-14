@@ -28,7 +28,7 @@ public class EmailDAO {
     private ConfigModule c;
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-    public EmailDAO(ConfigModule c) throws SQLException {
+    public EmailDAO(ConfigModule c){
         this.c = c;
         //buildDB();
     }

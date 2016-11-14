@@ -2,52 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-    <!-- Maven version of the xml document currently only 4.0.0 is valid -->
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- The GAV consists of an arbitrary descriptor that is usually in the
-    form of a reverse domain name. -->
-    <groupId>RYAN</groupId>
-
-    <!-- This is the name given to the packaged build -->
-	<artifactId>MailProject</artifactId>
-
-    <!-- The version of the build. Any value is valid though a number and a
-    string are common. SNAPSHOT means a project under development. FINAL is commonly
-    used to refer to stable production version -->
-    <version>1.0.0-SNAPSHOT</version>
-
-    <!-- Default value is jar but may be war or ear -->
+    <groupId>Ryan</groupId>
+    <artifactId>MailProject</artifactId>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <!-- The name given to the project. Unlike groupId and artifactId a name
-    may have spaces -->
-    <name>${artifactId}</name>
-
-    <!-- A description of the program -->
-	<description>Sample code for JDBC</description>
-
-    <!-- Identifies the programmer or programmers who worked on the project -->
-	<developers>
-		<developer>
-			<id>9999999</id>
-			<name>Ken Fogel</name>
-			<email>kfogel@dawsoncollege.qc.ca</email>
-		</developer>
-	</developers>
-
-    <!-- The company or organization that the programmer(s) work for -->
-    <organization>
-        <name>Dawson College</name>
-    </organization>
-
-    <!-- Global settings for the project. Settings can be accessed in the pom
+    <name>MailProject</name>
+   <!-- Global settings for the project. Settings can be accessed in the pom
     by placing the tag name in ${...} ex. ${mainClass} -->
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- class that has the main method -->
-        <mainClass>${groupId}.${artifactId}.presentation.DisplayFX</mainClass>
+        <mainClass>mainPackage.MainApp</mainClass>
     </properties>
 
     <dependencies>
@@ -93,20 +62,25 @@
             <version>5.1.36</version>
         </dependency>
 
-         <!-- Jodd Mail Dependency -->
+        <!-- Jodd Mail Dependency -->
        <dependency>
             <groupId>org.jodd</groupId>
             <artifactId>jodd-mail</artifactId>
             <version>3.6.6</version>
-         </dependency> 
+        </dependency>
+        <dependency>
+          <!-- jsoup HTML parser library @ http://jsoup.org/ -->
+          <groupId>org.jsoup</groupId>
+          <artifactId>jsoup</artifactId>
+          <version>1.10.1</version>
+        </dependency>
 
     </dependencies>
 
     <build>
         <!-- Goals may be set in the IDE or the pom IDE or CLI goals override the
         defaultGoal -->
-         <defaultGoal>clean compile package exec:java</defaultGoal>
-
+        <defaultGoal>clean compile package exec:java</defaultGoal>       
         <!-- Plugins define components that perform actions -->
         <plugins>
 
@@ -199,6 +173,3 @@
         </plugins>
     </build>
 </project>
-
-
-

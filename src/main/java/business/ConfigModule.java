@@ -123,11 +123,11 @@ public class ConfigModule {
         this.receiveEmailPwd = receiveEmailPwd;
     }
     
-    private void setSmtpServerName(String smtpServerName) {
+    public void setSmtpServerName(String smtpServerName) {
         this.smtpServerName = smtpServerName;
     }
 
-    private void setImapServerName(String imapServerName) {
+    public void setImapServerName(String imapServerName) {
         this.imapServerName = imapServerName;
     }
     /**

@@ -14,6 +14,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import properties.ConfigProperty;
@@ -29,7 +30,7 @@ public class FrontPageFXMLController {
     private TextField emailField;
 
     @FXML
-    private TextField passField;
+    private PasswordField passField;
 
     @FXML
     private Button enterBtn;
@@ -44,7 +45,7 @@ public class FrontPageFXMLController {
     private TextField dbUsernameField;
 
     @FXML
-    private TextField dbPassField;
+    private PasswordField dbPassField;
     
     private Scene scene;
     private Stage stage;
