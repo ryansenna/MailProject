@@ -10,8 +10,10 @@ import business.ActionModule;
 import business.ConfigModule;
 import business.Validator;
 import fileIO.PropertiesIO;
+import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -19,6 +21,9 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.TextField;
 import javafx.scene.web.HTMLEditor;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+import jodd.mail.EmailAttachment;
 import jodd.mail.MailAddress;
 import org.jsoup.Jsoup;
 import org.slf4j.LoggerFactory;
@@ -52,14 +57,25 @@ public class FXMLEmailPageController {
     private EmailDAO edao;
     private ActionModule am;
     private ConfigModule c;
+    private RyanEmail sentEmail;
 
     public FXMLEmailPageController() {
         cp = new ConfigProperty();// create a new ConfigProperty.
+        sentEmail = new RyanEmail();
     }
 
     @FXML
     void onAttachmentsClicked(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        Stage s = (Stage) toField.getScene().getWindow();
         
+        List<File> files = fc.showOpenMultipleDialog(s);
+        if(files != null){
+            for (File f : files){
+                //log
+                sentEmail.attach(EmailAttachment.attachment().file(f));
+            }
+        }
     }
 
     @FXML
@@ -81,7 +97,6 @@ public class FXMLEmailPageController {
         try {
             String subject = this.getSubject();
             String message = this.getMessage();
-            RyanEmail sentEmail = new RyanEmail();
             MailAddress[] toAddresses = this.getToField(toField);// get the To Addresses.
             MailAddress[] ccAddresses = this.getMailAddresses(ccField);
             MailAddress[] bccAddresses = this.getMailAddresses(bccField);
@@ -100,6 +115,7 @@ public class FXMLEmailPageController {
             ex.printStackTrace();
         } finally {
             clearFields();
+            sentEmail = null;
         }
 
     }
