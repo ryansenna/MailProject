@@ -15,21 +15,28 @@ import jodd.mail.MailAddress;
 import org.junit.Ignore;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import properties.ConfigProperty;
 
 /**
  *
  * @author 1333612
  */
 public class TestActionModule {
+    
+    private ConfigProperty c;
+    public TestActionModule(){
+        c = new ConfigProperty();
+        c.setUserEmailAddress("sender.rsenna@gmail.com");
+        c.setPassword("thisistest");
+        c.setSmtpServerName("smtp.gmail.com");
+        c.setImapServerName("imap.gmail.com");
+    }
 
     @Ignore
     @Test
     public void testSend() {
 
         boolean thrown = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab = new ActionModule(c);
 
         MailAddress[] receiver = {new MailAddress("receiver.rsenna@gmail.com")};
@@ -57,9 +64,6 @@ public class TestActionModule {
     public void testSendWithCC() {
 
         boolean thrown = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab
                 = new ActionModule(c);
         RyanEmail sentEmail = new RyanEmail();
@@ -87,9 +91,6 @@ public class TestActionModule {
     public void testSendWithBcc() {
 
         boolean thrown = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab
                 = new ActionModule(c);
 
@@ -120,10 +121,7 @@ public class TestActionModule {
     @Ignore
     @Test
     public void testSendWithBoth() {
-        boolean thrown = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
+        boolean thrown = false;;
         ActionModule ab
                 = new ActionModule(c);
 
@@ -158,9 +156,6 @@ public class TestActionModule {
     @Ignore
     public void testSendWithEmbedded() {
         boolean thrown = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab
                 = new ActionModule(c);
         RyanEmail sentEmail = new RyanEmail();
@@ -188,9 +183,6 @@ public class TestActionModule {
     @Ignore
     public void testSendWithAttachments() {
         boolean thrown = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab
                 = new ActionModule(c);
 
@@ -219,9 +211,6 @@ public class TestActionModule {
     public void testSendWithAttachmentsAndEmbedded() {
 
         boolean thrown = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab
                 = new ActionModule(c);
 
@@ -250,9 +239,6 @@ public class TestActionModule {
     public void testReceiveEmails() {
 
         boolean a = false;
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
         ActionModule ab
                 = new ActionModule(c);
         MailAddress[] receiver
@@ -275,10 +261,11 @@ public class TestActionModule {
     }
 
     @Test
+    @Ignore
     public void testRetrievingAndSaving() {
-        ConfigModule c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "sender.rsenna@gmail.com", "thisistest");
+        c.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
+        c.setDbUsername("CS1333612");
+        c.setDbPass("secrefer");
         boolean b = false;
         ActionModule a = new ActionModule(c);
         try {

@@ -20,6 +20,7 @@ import jodd.mail.*;
 import jodd.util.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import properties.ConfigProperty;
 
 /**
  *
@@ -27,17 +28,17 @@ import org.slf4j.LoggerFactory;
  */
 public class EmailDAO {
 
-    private ConfigModule c;
+    private ConfigProperty c;
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-    public EmailDAO(ConfigModule c){
+    public EmailDAO(ConfigProperty c){
         this.c = c;
         //buildDB();
     }
 
     public void buildDB() {
         final String seedDataScript = loadAsString("emailTables.sql");
-        try (Connection connection = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());) {
+        try (Connection connection = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());) {
             for (String statement : splitStatements(new StringReader(seedDataScript), ";")) {
                     connection.prepareStatement(statement).execute();
             }
@@ -69,7 +70,7 @@ public class EmailDAO {
         String insertIntoEmailAddesses
                 = "INSERT INTO EMAILADDRESS(ADDRESS, EMAILTYPE, EMAILID) VALUES(?,?,?)";
 
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement psEmail = conn.prepareStatement(insertIntoEmail);
                 PreparedStatement psFolder = conn.prepareStatement(insertIntoFolder);
                 PreparedStatement psMessages = conn.prepareStatement(insertIntoMessages);
@@ -119,7 +120,7 @@ public class EmailDAO {
         int numOfRowsAffected = 0;
 
         String query = "DELETE FROM EMAIL WHERE EMAILID = ?";
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, id);
             numOfRowsAffected = ps.executeUpdate();
@@ -139,7 +140,7 @@ public class EmailDAO {
 
         String query = "SELECT * FROM EMAIL";
 
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);
                 ResultSet rs = ps.executeQuery();) {
             while (rs.next()) {
@@ -162,7 +163,7 @@ public class EmailDAO {
         RyanEmail email = new RyanEmail();
 
         String query = "SELECT * FROM EMAIL WHERE EMAILID = ?";
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery();) {
@@ -230,7 +231,7 @@ public class EmailDAO {
     private List<byte[]> getAttachmentFromDb(int mId) throws SQLException {
         String query = "SELECT MESSAGEFILE FROM ATTACHMENTS WHERE MESSAGEID = ?";
         List<byte[]> attachments = new ArrayList<byte[]>();
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, mId);
             try (ResultSet rs = ps.executeQuery();) {
@@ -252,7 +253,7 @@ public class EmailDAO {
     private MailAddress[] getBccAddressFromDb(int emailId) throws SQLException {
         String query = "SELECT ADDRESS FROM EMAILADDRESS WHERE EMAILID = ? AND EMAILTYPE = 'bcc'";
         List<MailAddress> ma = new ArrayList<MailAddress>();
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, emailId);
             try (ResultSet rs = ps.executeQuery();) {
@@ -275,7 +276,7 @@ public class EmailDAO {
     private MailAddress[] getCCAddressFromDb(int emailId) throws SQLException {
         String query = "SELECT ADDRESS FROM EMAILADDRESS WHERE EMAILID = ? AND EMAILTYPE = 'cc'";
         List<MailAddress> ma = new ArrayList<MailAddress>();
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, emailId);
             try (ResultSet rs = ps.executeQuery();) {
@@ -299,7 +300,7 @@ public class EmailDAO {
     private int getEmailIdFromDb(Timestamp t) throws SQLException {
 
         String query = "SELECT EMAILID FROM EMAIL WHERE EMAILSENTDATE = ?";
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setTimestamp(1, t);
             try (ResultSet rs = ps.executeQuery();) {
@@ -322,7 +323,7 @@ public class EmailDAO {
     private String getFolderNameFromDb(int emailId) throws SQLException {
         String query = "SELECT FOLDERNAME FROM FOLDER WHERE EMAILID = ?";
 
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, emailId);
             try (ResultSet rs = ps.executeQuery();) {
@@ -345,7 +346,7 @@ public class EmailDAO {
     private int getMessageIdFromDb(int emailId) throws SQLException {
         String query = "SELECT MESSAGEID FROM MESSAGES WHERE EMAILID = ?";
 
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, emailId);
             try (ResultSet rs = ps.executeQuery();) {
@@ -367,7 +368,7 @@ public class EmailDAO {
      */
     private EmailMessage getMessageTextFromDb(int emailId) throws SQLException {
         String query = "SELECT EMAILTEXT FROM MESSAGES WHERE EMAILID = ?";
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, emailId);
             try (ResultSet rs = ps.executeQuery();) {
@@ -390,7 +391,7 @@ public class EmailDAO {
     private MailAddress[] getReceiverAddressFromDb(int emailId) throws SQLException {
         String query = "SELECT ADDRESS FROM EMAILADDRESS WHERE EMAILID = ? AND EMAILTYPE = 'TO'";
         List<MailAddress> ma = new ArrayList<MailAddress>();
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getUser(), c.getPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, emailId);
             try (ResultSet rs = ps.executeQuery();) {

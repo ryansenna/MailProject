@@ -78,12 +78,10 @@ public class FXMLEmailPageController {
     public FXMLEmailPageController() {
         cp = new ConfigProperty();// create a new ConfigProperty.
         sentEmail = new RyanEmail();
-        c = cp.toConfigModule();// create a new ConfigModule
-        edao = new EmailDAO(c);// Create an EDAO for persistence
-        am = new ActionModule(c);// create a module for sending and receiving.
     }
 
-    public void init() {
+    @FXML
+    private void initialize() {
         //this.saveEmailsToDatabase(cp);
         fromColumnField.setCellValueFactory(cellData -> cellData.getValue().fromField());
         subjectColumnField.setCellValueFactory(cellData -> cellData.getValue().subjectField());
@@ -132,8 +130,8 @@ public class FXMLEmailPageController {
     @FXML
     void onSendClicked(ActionEvent event) {
         c = cp.toConfigModule();// create a new ConfigModule
-        edao = new EmailDAO(c);// Create an EDAO for persistence
-        am = new ActionModule(c);// create a module for sending and receiving.
+        edao = new EmailDAO(cp);// Create an EDAO for persistence
+        am = new ActionModule(cp);// create a module for sending and receiving.
 
         log.error("THIS VAR WAS LOADED :" + c.getSmtpServerName());
 
@@ -162,12 +160,17 @@ public class FXMLEmailPageController {
     public boolean loadCPProperties() {
         PropertiesIO pm = new PropertiesIO();
         boolean result = false;// if the properties were loaded or not.
-
+        //c = cp.toConfigModule();// create a new ConfigModule
+        edao = new EmailDAO(cp);// Create an EDAO for persistence
+        am = new ActionModule(cp);// create a module for sending and receiving.
         try {
             result = pm.loadTextProperties(cp, "", "MailConfig");
-            log.error("THIS VAR WAS LOADED: " + cp.getSmtpServerName());
+            cp.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
+            am.receiveEmail();
         } catch (IOException ex) {
             log.error("Error 100: The properties were not loaded.");
+        } catch(Exception e){
+            e.printStackTrace();
         }
         return result;// if it is true, the properties were loaded.
     }
@@ -287,20 +290,4 @@ public class FXMLEmailPageController {
     private void showDetails(RyanEmail newValue) {
         System.out.println(newValue);
     }
-
-    /**
-     * This method will retrive the list of emails from the received and save to
-     * the database.
-     */
-    public void saveEmailsToDatabase(ConfigProperty prop) {
-        ConfigModule configs = prop.toConfigModule();// create a new ConfigModule
-        EmailDAO dataAccess = new EmailDAO(configs);// Create an EDAO for persistence
-        ActionModule actions = new ActionModule(c);// create a module for sending and receiving.
-        try {
-            dataAccess.saveReceivedEmailsToDb(actions.receiveEmail());
-        } catch (SQLException s) {
-            alertUserMistake(s.getMessage());
-        }
-    }
-
 }

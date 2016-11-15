@@ -8,6 +8,7 @@ import java.util.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import javax.mail.Flags;
 import jodd.mail.EmailAttachment;
@@ -20,7 +21,10 @@ import jodd.mail.SendMailSession;
 import jodd.mail.SmtpServer;
 import jodd.mail.SmtpSslServer;
 import jodd.util.MimeTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import persistence.EmailDAO;
+import properties.ConfigProperty;
 
 /**
  * The class ActionModule is a business class with the purpose of creating,
@@ -31,9 +35,10 @@ import persistence.EmailDAO;
  */
 public class ActionModule implements Mailer {
 
-    private ConfigModule c;
+    private ConfigProperty c;
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-    public ActionModule(ConfigModule c) {
+    public ActionModule(ConfigProperty c) {
         this.c = c;
     }
 
@@ -112,7 +117,7 @@ public class ActionModule implements Mailer {
         // set date
         email.setSentDate((Date) Timestamp.valueOf(LocalDateTime.now()));
         
-        email.setFrom(new MailAddress(c.getSendEmail()));
+        email.setFrom(new MailAddress(c.getUserEmailAddress()));
 
         // Display Java Mail debug conversation with the server
         smtpServer.debug(true);
@@ -141,23 +146,25 @@ public class ActionModule implements Mailer {
         EmailDAO edao = new EmailDAO(c);
         // Create am IMAP server object
         ImapSslServer imapSslServer = c.configImapServer();
-
+        
         // Display the converstaion between the application and the imap server
         //imapSslServer.setProperty("mail.debug", "true");
         //Create a List of emails
         ArrayList<RyanEmail> receivedEmails = new ArrayList<RyanEmail>();
         // A session is the object responsible for communicating with the server
         ReceiveMailSession session = imapSslServer.createSession();
+        log.error("TELL ME WHO IS THIS VARIABLE" + c.getImapServerName());
         session.open();
 
         ReceivedEmail[] emails = session.receiveEmail();
         //close the session
         session.close();
 
+        List<RyanEmail> em = convertToRyanEmail(emails);
         // CONVERT RECEIVED EMAILS TO RYAN EMAILS.
-        for(RyanEmail e: convertToRyanEmail(emails)){
-            receivedEmails.add(e);
-            edao.create(e);
+        for(int i = 0; i < em.size(); i++){
+            receivedEmails.add(em.get(i));
+            edao.create(em.get(i));
         } 
         
         //return for db purposes and UI
@@ -198,6 +205,7 @@ public class ActionModule implements Mailer {
             for (int j = 0; j < emailMessageLenght; j++) {
                 ryanEmail.addMessage(receivedEmails[i].getAllMessages().get(j));
             }
+            myEmails.add(ryanEmail);
             ryanEmail = new RyanEmail();
         }
         //return my list of emails
@@ -205,7 +213,7 @@ public class ActionModule implements Mailer {
     }
 
     @Override
-    public ConfigModule getConfigBean() {
+    public ConfigProperty getConfigBean() {
         return c;
     }
 
@@ -221,7 +229,7 @@ public class ActionModule implements Mailer {
     private RyanEmail createEmail(String subject, String content,
             MailAddress[] receiveEmail) {
         //EmailAddress sendAddress = new EmailAddress(sendEmail);
-        MailAddress sending = new MailAddress(c.getSendEmail());
+        MailAddress sending = new MailAddress(c.getUserEmailAddress());
 
         //MailAddress[] receiving = copy(receiveEmail);
         RyanEmail email = new RyanEmail();
@@ -248,7 +256,7 @@ public class ActionModule implements Mailer {
             MailAddress[] receiveEmail, Optional<MailAddress[]> cc,
             Optional<MailAddress[]> bcc) {
 
-        MailAddress sending = new MailAddress(c.getSendEmail());
+        MailAddress sending = new MailAddress(c.getUserEmailAddress());
 
         RyanEmail email = new RyanEmail();
         email.setFrom(sending);
@@ -274,7 +282,7 @@ public class ActionModule implements Mailer {
     private RyanEmail createEmailWithBcc(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> bcc) {
 
-        MailAddress sending = new MailAddress(c.getSendEmail());
+        MailAddress sending = new MailAddress(c.getUserEmailAddress());
 
         RyanEmail email = new RyanEmail();
 
@@ -300,7 +308,7 @@ public class ActionModule implements Mailer {
     private RyanEmail createEmailWithCc(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> cc) {
 
-        MailAddress sending = new MailAddress(c.getSendEmail());
+        MailAddress sending = new MailAddress(c.getUserEmailAddress());
 
         RyanEmail email = new RyanEmail();
         email.setFrom(sending);

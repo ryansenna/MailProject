@@ -5,6 +5,7 @@
  */
 package fxcontrollers;
 
+import business.ActionModule;
 import fileIO.PropertiesIO;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -18,6 +19,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.slf4j.LoggerFactory;
 import properties.ConfigProperty;
 
 /**
@@ -52,6 +54,8 @@ public class FrontPageFXMLController {
     private Stage stage;
     private FXMLEmailPageController epc;
     private ConfigProperty cp;// model for the properties.
+    private ActionModule actions;
+    private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     /**
      * Default constructor
@@ -84,6 +88,7 @@ public class FrontPageFXMLController {
         Bindings.bindBidirectional(imapField.textProperty(), cp.imapServerName());
         Bindings.bindBidirectional(dbUsernameField.textProperty(), cp.dbUsername());
         Bindings.bindBidirectional(dbPassField.textProperty(), cp.dbPass());
+
     }
 
     @FXML

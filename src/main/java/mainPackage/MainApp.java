@@ -42,9 +42,10 @@ public class MainApp extends Application {
         Scene scene1 = createFXMLFrontPageController(scene2);
 
         if (!checkForProperties()) {
-            this.stage.setScene(scene1);
+            this.stage.setScene(scene1);// set front page
+            
         } else {
-            this.stage.setScene(scene2);
+            this.stage.setScene(scene2);//
         }
 
         this.stage.setTitle("Ryan's Email Service");
@@ -65,8 +66,6 @@ public class MainApp extends Application {
         PropertiesIO pio = new PropertiesIO();
         
         if(pio.loadTextProperties(cp, "", "MailConfig")){
-            epc.saveEmailsToDatabase(cp);
-            epc.init();
             return true;
         }
         return false;

@@ -148,7 +148,7 @@
             <TableView fx:id="tableReceiveField" prefHeight="200.0" prefWidth="878.0" BorderPane.alignment="CENTER">
               <columns>
                 <TableColumn fx:id="fromColumnField" prefWidth="235.0" text="From" />
-                <TableColumn fx:id="subjectColumn" prefWidth="560.0" text="Subject" />
+                <TableColumn fx:id="subjectColumnField" prefWidth="560.0" text="Subject" />
                   <TableColumn fx:id="dateColumnField" prefWidth="105.0" text="Date" />
               </columns>
             </TableView>

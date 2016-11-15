@@ -8,6 +8,11 @@ package properties;
 import business.ConfigModule;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import jodd.mail.ImapSslServer;
+import jodd.mail.SmtpServer;
+import jodd.mail.SmtpSslServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -21,6 +26,8 @@ public class ConfigProperty {
     private final StringProperty imapServerName;
     private final StringProperty dbUsername;
     private final StringProperty dbPass;
+    private String url;
+    private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     public ConfigProperty() {
         super();
@@ -30,6 +37,7 @@ public class ConfigProperty {
         this.smtpServerName = new SimpleStringProperty("");
         this.dbUsername = new SimpleStringProperty("");
         this.dbPass = new SimpleStringProperty("");
+        url = "";
     }
 
     public String getUserEmailAddress() {
@@ -54,6 +62,14 @@ public class ConfigProperty {
 
     public String getDbPass() {
         return dbPass.get();
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String s) {
+        url = s;
     }
 
     public void setUserEmailAddress(String s) {
@@ -103,31 +119,65 @@ public class ConfigProperty {
     public StringProperty dbPass() {
         return dbPass;
     }
-    
+
     /**
-     * This method will turn this Config Property into a Config Module
-     * in order to be used with the business classes.
-     * @return 
+     * This method will make the configurations of the imap server.
+     *
+     * @param emailReceive
+     * @param emailReceivePwd
+     * @return imapSslServer
      */
-    public ConfigModule toConfigModule(){
-        
+    public ImapSslServer configImapServer() {
+        ImapSslServer imapSslServer = new ImapSslServer(getImapServerName(),
+                getUserEmailAddress(), getPassword());
+        return imapSslServer;
+
+    }
+
+    /**
+     * This method will make the configurations of the smtp server.
+     *
+     * @param emailAddress
+     * @param emailPwd
+     * @return smtpServer
+     */
+    public SmtpServer<SmtpSslServer> configSmtpServer() {
+
+        SmtpServer<SmtpSslServer> smtpServer = SmtpSslServer
+                .create(getSmtpServerName())
+                .authenticateWith(getUserEmailAddress(), getPassword());
+
+        return smtpServer;
+    }
+
+    /**
+     * This method will turn this Config Property into a Config Module in order
+     * to be used with the business classes.
+     *
+     * @return
+     */
+    public ConfigModule toConfigModule() {
+
         ConfigModule c = new ConfigModule();
-        
+
         c.setSendEmail(this.getUserEmailAddress());
         c.setSendEmailPwd(this.getPassword());
         c.setReceiveEmail(this.getUserEmailAddress());
         c.setReceiveEmailPwd(this.getPassword());
-        c.setSmtpServerName(this.getSmtpServerName());
-        c.setImapServerName(this.getImapServerName());
+        c.setSmtpServerName(getSmtpServerName());
+        log.error(c.getSmtpServerName());
+        c.setImapServerName(getImapServerName());
+        log.error(c.getImapServerName());
         c.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
         c.setUser(this.getDbUsername());
         c.setPass(this.getDbPass());
-         
+
         return c;
     }
+
     @Override
     public String toString() {
-        return "MailConfigProperties\n{\t" + "\n\tuserEmailAddress=" + userEmailAddress.get() + "\n\tpassword=" + password.get() + "\n}";
+        return "MailConfigProperties\n{\t" + "\n\tuserEmailAddress=" + getSmtpServerName() + "\n\tpassword=" + getImapServerName() + "\n}";
     }
 
 }

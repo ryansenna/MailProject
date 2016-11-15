@@ -23,6 +23,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import properties.ConfigProperty;
 
 /**
  *
@@ -32,16 +33,19 @@ public class TestEmailDAO {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private EmailDAO em;
-    private ConfigModule c;
+    private ConfigProperty c;
 
     public TestEmailDAO() {
 
-        c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
-                "sender.rsenna@gmail.com", "thisistest",
-                "sender.rsenna@gmail.com", "thisistest");
+        c = new ConfigProperty();
+        c.setUserEmailAddress("sender.rsenna@gmail.com");
+        c.setPassword("thisistest");
+        c.setSmtpServerName("smtp.gmail.com");
+        c.setImapServerName("imap.gmail.com");
+        
         c.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
-        c.setUser("CS1333612");
-        c.setPass("secrefer");
+        c.setDbUsername("CS1333612");
+        c.setDbPass("secrefer");
 
         try {
             em = new EmailDAO(c);
@@ -56,10 +60,6 @@ public class TestEmailDAO {
      */
     @Ignore
     public void recreateDB() {
-        ConfigModule c = new ConfigModule();
-        c.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
-        c.setUser("CS1333612");
-        c.setPass("secrefer");
 
         try {
             EmailDAO e = new EmailDAO(c);

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 import jodd.mail.EmailAddress;
 import jodd.mail.MailAddress;
+import properties.ConfigProperty;
 
 /**
  *
@@ -47,5 +48,5 @@ public interface Mailer {
      * getter for ConfigBean.
      * @return 
      */
-    ConfigModule getConfigBean();
+    ConfigProperty getConfigBean();
 }
