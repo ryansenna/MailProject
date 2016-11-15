@@ -25,6 +25,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jodd.mail.EmailAttachment;
 import jodd.mail.MailAddress;
+import jodd.util.MimeTypes;
 import org.jsoup.Jsoup;
 import org.slf4j.LoggerFactory;
 import persistence.EmailDAO;
@@ -68,26 +69,39 @@ public class FXMLEmailPageController {
     void onAttachmentsClicked(ActionEvent event) {
         FileChooser fc = new FileChooser();
         Stage s = (Stage) toField.getScene().getWindow();
-        
+
         List<File> files = fc.showOpenMultipleDialog(s);
-        if(files != null){
-            for (File f : files){
+        if (files != null) {
+            for (File f : files) {
                 //log
                 sentEmail.attach(EmailAttachment.attachment().file(f));
+                alertSuccessful("Attached!");
             }
         }
     }
 
     @FXML
     void onEmbeddedClicked(ActionEvent event) {
+        FileChooser fc = new FileChooser();
+        Stage s = (Stage) toField.getScene().getWindow();
 
+        List<File> files = fc.showOpenMultipleDialog(s);
+        if (files != null) {
+            for (File f : files) {
+                //log
+                sentEmail.embed(EmailAttachment.attachment().file(f));
+                alertSuccessful("Embeded!");
+            }
+        }
     }
 
+    /**
+     * It takes care of sending an email to its destination
+     * and saving it to the database.
+     * @param event 
+     */
     @FXML
     void onSendClicked(ActionEvent event) {
-
-        // GET WHAT FIELDS ARE NULL AND WHAT ARE NOT.
-        // RIGHT NOW ASSUME YOU HAVE THE REQUIRED ONES.
         c = cp.toConfigModule();// create a new ConfigModule
         edao = new EmailDAO(c);// Create an EDAO for persistence
         am = new ActionModule(c);// create a module for sending and receiving.
@@ -95,16 +109,12 @@ public class FXMLEmailPageController {
         log.error("THIS VAR WAS LOADED :" + c.getSmtpServerName());
 
         try {
-            String subject = this.getSubject();
-            String message = this.getMessage();
-            MailAddress[] toAddresses = this.getToField(toField);// get the To Addresses.
-            MailAddress[] ccAddresses = this.getMailAddresses(ccField);
-            MailAddress[] bccAddresses = this.getMailAddresses(bccField);
-            sentEmail = am.sendEmail(subject, message, toAddresses, Optional.empty(),
-                    Optional.empty(), Optional.of(ccAddresses), Optional.of(bccAddresses));
-            edao.create(sentEmail);
-            alertSuccessful();
+            setEmail();
+            am.sendEmail(sentEmail);// send the email.
+            edao.create(sentEmail);// add to the database.
+            alertSuccessful("Your message was sent.");// tell the user that its message was sent.
         } catch (IllegalArgumentException iae) {
+            log.error(iae.getMessage());
             alertUserMistake(iae.getMessage());//"One of your email fields was not properly set.");
             clearFields();
         } catch (SQLException sqlE) {
@@ -115,7 +125,7 @@ public class FXMLEmailPageController {
             ex.printStackTrace();
         } finally {
             clearFields();
-            sentEmail = null;
+            sentEmail = new RyanEmail();
         }
 
     }
@@ -131,6 +141,16 @@ public class FXMLEmailPageController {
             log.error("Error 100: The properties were not loaded.");
         }
         return result;// if it is true, the properties were loaded.
+    }
+    /**
+     * This helper method will set the email field.
+     */
+    private void setEmail() {
+        sentEmail.subject(this.getSubject());
+        sentEmail.addMessage(this.getMessage(),MimeTypes.MIME_TEXT_PLAIN);
+        sentEmail.setTo(this.getToField(toField));// get the To Addresses.
+        sentEmail.setCc(this.getMailAddresses(ccField));
+        sentEmail.setBcc(this.getMailAddresses(bccField));
     }
 
     /**
@@ -170,7 +190,7 @@ public class FXMLEmailPageController {
             MailAddress[] returnList = new MailAddress[addresses.length];// create my list of Mail Addresses.
 
             // loop trough the string addresses, adding to my return list.
-            for (int i = 0; i < addresses.length; i++) { 
+            for (int i = 0; i < addresses.length; i++) {
                 MailAddress m = new MailAddress(addresses[i].trim());
                 returnList[i] = m;
             }
@@ -202,10 +222,10 @@ public class FXMLEmailPageController {
         alert.showAndWait();
     }
 
-    private void alertSuccessful() {
+    private void alertSuccessful(String message) {
         Alert alert = new Alert(AlertType.INFORMATION);
         alert.setTitle("Ryan's Email Service");
-        alert.setContentText("Your message was sent.");
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
@@ -215,9 +235,7 @@ public class FXMLEmailPageController {
      * @return
      */
     private String getMessage() {
-        Validator v = new Validator();
-        String s = v.stripTags(subjectField.getText()).trim();
-        return s;
+        return new Validator().stripTags(messageField.getHtmlText()).trim();
     }
 
 }

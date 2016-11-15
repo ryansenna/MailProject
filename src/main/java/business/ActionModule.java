@@ -1,4 +1,3 @@
-
 package business;
 
 import beans.RyanEmail;
@@ -22,8 +21,8 @@ import jodd.mail.SmtpSslServer;
 import jodd.util.MimeTypes;
 
 /**
- * The class ActionModule is a business class with the purpose
- * of creating, sending and receiving e-mails.
+ * The class ActionModule is a business class with the purpose of creating,
+ * sending and receiving e-mails.
  *
  * @author Railanderson "Ryan" Sena
  * @version 1.0
@@ -68,7 +67,7 @@ public class ActionModule implements Mailer {
         } else {// create a normal email.
             email = createEmail(subject, content, receiveEmail);
         }
-        
+
         //Keep it in the folder Sent
         email.setFolder("Sent");
         // Check if we need to have an Embedded message.
@@ -94,6 +93,40 @@ public class ActionModule implements Mailer {
         return email;
 
     }
+    /**
+     * This method will send an email but receiving an email as a parameter
+     * and it returns an email for database purposes.
+     * @param email
+     * @return
+     * @throws Exception 
+     */
+    public RyanEmail sendEmail(RyanEmail email) throws Exception {
+        //Create SMTP Server
+        SmtpServer<SmtpSslServer> smtpServer
+                = c.configSmtpServer();
+
+        // set folder to sent
+        email.setFolder("sent");
+        // set date
+        email.setSentDate((Date) Timestamp.valueOf(LocalDateTime.now()));
+        
+        email.setFrom(new MailAddress(c.getSendEmail()));
+
+        // Display Java Mail debug conversation with the server
+        smtpServer.debug(true);
+
+        // A session is the object responsible for communicating with the server
+        SendMailSession session = smtpServer.createSession();
+
+        // session
+        session.open();
+        session.sendMail(email);
+        session.close();
+
+        //return the email db purposes.
+        return email;
+
+    }
 
     /**
      * Definition in the interface.
@@ -102,32 +135,31 @@ public class ActionModule implements Mailer {
      */
     @Override
     public ArrayList<RyanEmail> receiveEmail() {
-        
+
         // Create am IMAP server object
         ImapSslServer imapSslServer = c.configImapServer();
 
         // Display the converstaion between the application and the imap server
         //imapSslServer.setProperty("mail.debug", "true");
-        
         //Create a List of emails
         ArrayList<RyanEmail> receivedEmails = new ArrayList<RyanEmail>();
         // A session is the object responsible for communicating with the server
         ReceiveMailSession session = imapSslServer.createSession();
         session.open();
-        
+
         ReceivedEmail[] emails = session.receiveEmailAndMarkSeen(EmailFilter
                 .filter().flag(Flags.Flag.SEEN, false));
         //close the session
         session.close();
-        
+
         // CONVERT RECEIVED EMAILS TO RYAN EMAILS.
         receivedEmails = convertToRyanEmail(emails);
-        
+
         //return for db purposes and UI
         return receivedEmails;
     }
-    
-        /**
+
+    /**
      * This static method takes in Received email array and transforms into a
      * List of Ryan Emails.
      *
@@ -139,8 +171,8 @@ public class ActionModule implements Mailer {
         ArrayList<RyanEmail> myEmails = new ArrayList<RyanEmail>();
         RyanEmail ryanEmail = new RyanEmail();
         int emailMessageLenght = 0;
-        
-       //loop through all the Received emails
+
+        //loop through all the Received emails
         for (int i = 0; i < receivedEmails.length; i++) {
             Timestamp ts = new Timestamp(receivedEmails[i].getReceiveDate().getTime());
             ryanEmail.setFrom(receivedEmails[i].getFrom());
@@ -155,11 +187,10 @@ public class ActionModule implements Mailer {
             ryanEmail.setMessageNumber(receivedEmails[i].getMessageNumber());
             ryanEmail.setFlags(receivedEmails[i].getFlags());
             ryanEmail.setFolder("inbox");
-            
+
             // add all the messages from the received Email.
             emailMessageLenght = receivedEmails[i].getAllMessages().size();
-            for(int j = 0; j < emailMessageLenght; j++)
-            {
+            for (int j = 0; j < emailMessageLenght; j++) {
                 ryanEmail.addMessage(receivedEmails[i].getAllMessages().get(j));
             }
 
@@ -174,14 +205,15 @@ public class ActionModule implements Mailer {
     public ConfigModule getConfigBean() {
         return c;
     }
+
     /**
-     * This Method creates and returns a nude Email, without CC, BCC, Attachments,
-     * or EmbeddedAttachments.
-     * 
+     * This Method creates and returns a nude Email, without CC, BCC,
+     * Attachments, or EmbeddedAttachments.
+     *
      * @param subject
      * @param content
      * @param receiveEmail
-     * @return 
+     * @return
      */
     private RyanEmail createEmail(String subject, String content,
             MailAddress[] receiveEmail) {
@@ -194,19 +226,20 @@ public class ActionModule implements Mailer {
         email.setTo(receiveEmail);
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
+        email.setSentDate((Date) Timestamp.valueOf(LocalDateTime.now()));
         return email;
 
     }
+
     /**
      * This method creates an Email with cc and bcc.
-     * 
+     *
      * @param subject
      * @param content
      * @param receiveEmail
      * @param cc
      * @param bcc
-     * @return 
+     * @return
      */
     private RyanEmail createEmailWithCCAndBCC(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> cc,
@@ -221,17 +254,19 @@ public class ActionModule implements Mailer {
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
+        email.setSentDate((Date) Timestamp.valueOf(LocalDateTime.now()));
 
         return email;
     }
+
     /**
      * This method creates an email with Bcc only.
+     *
      * @param subject the subject of the email
      * @param content the content of the email
      * @param receiveEmail
      * @param bcc
-     * @return 
+     * @return
      */
     private RyanEmail createEmailWithBcc(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> bcc) {
@@ -239,24 +274,25 @@ public class ActionModule implements Mailer {
         MailAddress sending = new MailAddress(c.getSendEmail());
 
         RyanEmail email = new RyanEmail();
-        
+
         email.setFrom(sending);
         email.setTo(receiveEmail);
         email.setBcc(bcc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
+        email.setSentDate((Date) Timestamp.valueOf(LocalDateTime.now()));
 
         return email;
     }
-    
+
     /**
      * This method creates an email with cc only.
+     *
      * @param subject
      * @param content
      * @param receiveEmail
      * @param cc
-     * @return 
+     * @return
      */
     private RyanEmail createEmailWithCc(String subject, String content,
             MailAddress[] receiveEmail, Optional<MailAddress[]> cc) {
@@ -269,7 +305,7 @@ public class ActionModule implements Mailer {
         email.setCc(cc.get());
         email.setSubject(subject);
         email.addMessage(content, MimeTypes.MIME_TEXT_PLAIN);
-        email.setSentDate((Date)Timestamp.valueOf(LocalDateTime.now()));
+        email.setSentDate((Date) Timestamp.valueOf(LocalDateTime.now()));
 
         return email;
     }
@@ -279,7 +315,7 @@ public class ActionModule implements Mailer {
         //setting up the embedded image.
         String html = "<html><META http-equiv=Content-Type "
                 + "content=\"text/html; charset=utf-8\">"
-                + "<body><img src='cid:"+embedded+"'>"
+                + "<body><img src='cid:" + embedded + "'>"
                 + "</body></html>";
         e.addHtml(html);
         e.embed(EmailAttachment.attachment()
