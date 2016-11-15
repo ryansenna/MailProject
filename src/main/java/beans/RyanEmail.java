@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.beans.property.StringProperty;
 import javax.mail.Flags;
 import jodd.mail.Email;
 import jodd.mail.EmailAttachment;
@@ -31,6 +32,10 @@ public class RyanEmail extends Email {
     private Flags flags;
     private int messageNumber;
     private Timestamp rcvDate;
+
+    private StringProperty fromField;
+    private StringProperty subjectField;
+    private StringProperty dateField;
 
     public RyanEmail() {
         super();
@@ -101,6 +106,18 @@ public class RyanEmail extends Email {
         return rcvDate;
     }
 
+    public String getFromField() {
+        return fromField.get();
+    }
+
+    public String getSubjectField() {
+        return subjectField.get();
+    }
+
+    public String getDateField() {
+        return dateField.get();
+    }
+
     public void setFolder(String folder) {
         this.folder = folder;
     }
@@ -124,10 +141,36 @@ public class RyanEmail extends Email {
     public void setAttachments(List<EmailAttachment> attachments) {
         this.attachments = attachments;
     }
+
+    public void setFromField(String s) {
+        fromField.set(s);
+    }
+
+    public void setSubjectField(String s) {
+        subjectField.set(s);
+    }
+
+    public void setDateField(String s) {
+        dateField.set(s);
+    }
+
+    public StringProperty fromField() {
+        return fromField;
+    }
+
+    public StringProperty subjectField() {
+        return subjectField;
+    }
+
+    public StringProperty dateField() {
+        return dateField;
+    }
+
     /**
      * This method checks if the To field list is equal to another.
+     *
      * @param e
-     * @return 
+     * @return
      */
     private boolean isToFieldEqual(RyanEmail e) {
 
@@ -145,10 +188,12 @@ public class RyanEmail extends Email {
         }
         return true;
     }
+
     /**
      * This method checks if the CC field list is equal to another.
+     *
      * @param e
-     * @return 
+     * @return
      */
     private boolean isCCFieldEqual(RyanEmail e) {
         //check for the list of cc
@@ -168,19 +213,22 @@ public class RyanEmail extends Email {
 
         return true;
     }
+
     /**
      * This Method checks if a list of attachments is equal to another.
+     *
      * @param e
-     * @return 
+     * @return
      */
     private boolean areAttachmentsEqual(RyanEmail e) {
-        
+
         //check the list of attachments
         List<EmailAttachment> fromE = e.getAttachments();//might return null
         List<EmailAttachment> fromThis = this.getAttachments();//might return null
 
-        if(fromE == null && fromThis == null)
+        if (fromE == null && fromThis == null) {
             return true;
+        }
         // if one of then references null so they are not equal
         if ((fromE == null && fromThis != null) || (fromE != null && fromThis == null)) {
             return false;
@@ -196,7 +244,7 @@ public class RyanEmail extends Email {
                 return false;
             }
         }
-        
+
         return true;
     }
 

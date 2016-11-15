@@ -43,6 +43,9 @@ public class Validator {
             return true;
         String [] addresses = s.split(",");
         
+        if(addresses.length > 100)
+            return false;
+        
         for(int i = 0; i < addresses.length; i++){
             if(!isValidEmailAddress(addresses[i].trim()))
                 return false;
@@ -52,6 +55,19 @@ public class Validator {
     
     public String stripTags(String htmlMessage){
         return Jsoup.parse(htmlMessage).text();
+    }
+    
+    public boolean isValidMessage(String s){
+        if (s.length() > 500)
+            return false;
+        return true;
+    }
+    
+    public boolean isSubjectValid(String subject)
+    {
+        if(subject.length() > 72)
+            return false;
+        return true;
     }
     
 }

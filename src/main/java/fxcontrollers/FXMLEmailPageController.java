@@ -13,12 +13,15 @@ import fileIO.PropertiesIO;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.FileChooser;
@@ -52,6 +55,18 @@ public class FXMLEmailPageController {
     @FXML
     private HTMLEditor messageField;
 
+    @FXML
+    private TableView<RyanEmail> tableReceiveField;
+
+    @FXML
+    private TableColumn<RyanEmail, String> fromColumnField;
+
+    @FXML
+    private TableColumn<RyanEmail, String> subjectColumnField;
+
+    @FXML
+    private TableColumn<RyanEmail, String> dateColumnField;
+
     // a logger for erros
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private ConfigProperty cp;
@@ -63,6 +78,19 @@ public class FXMLEmailPageController {
     public FXMLEmailPageController() {
         cp = new ConfigProperty();// create a new ConfigProperty.
         sentEmail = new RyanEmail();
+        c = cp.toConfigModule();// create a new ConfigModule
+        edao = new EmailDAO(c);// Create an EDAO for persistence
+        am = new ActionModule(c);// create a module for sending and receiving.
+    }
+
+    public void init() {
+        //this.saveEmailsToDatabase(cp);
+        fromColumnField.setCellValueFactory(cellData -> cellData.getValue().fromField());
+        subjectColumnField.setCellValueFactory(cellData -> cellData.getValue().subjectField());
+        dateColumnField.setCellValueFactory(cellData -> cellData.getValue().dateField());
+
+        tableReceiveField.getSelectionModel().selectedItemProperty()
+                .addListener((observable, oldValue, newValue) -> showDetails(newValue));
     }
 
     @FXML
@@ -96,9 +124,10 @@ public class FXMLEmailPageController {
     }
 
     /**
-     * It takes care of sending an email to its destination
-     * and saving it to the database.
-     * @param event 
+     * It takes care of sending an email to its destination and saving it to the
+     * database.
+     *
+     * @param event
      */
     @FXML
     void onSendClicked(ActionEvent event) {
@@ -142,12 +171,18 @@ public class FXMLEmailPageController {
         }
         return result;// if it is true, the properties were loaded.
     }
+
+    public void displayTheTable() throws SQLException {
+        // Add observable list data to the table
+        tableReceiveField.setItems(this.edao.findAll());
+    }
+
     /**
      * This helper method will set the email field.
      */
     private void setEmail() {
         sentEmail.subject(this.getSubject());
-        sentEmail.addMessage(this.getMessage(),MimeTypes.MIME_TEXT_PLAIN);
+        sentEmail.addMessage(this.getMessage(), MimeTypes.MIME_TEXT_PLAIN);
         sentEmail.setTo(this.getToField(toField));// get the To Addresses.
         sentEmail.setCc(this.getMailAddresses(ccField));
         sentEmail.setBcc(this.getMailAddresses(bccField));
@@ -206,6 +241,10 @@ public class FXMLEmailPageController {
         if (s.isEmpty()) {
             throw new IllegalArgumentException("Error 301: Subject Field is mandatory");
         }
+        if (!v.isSubjectValid(s)) {
+            throw new IllegalArgumentException("Subject Field contain too many characters.");
+        }
+
         return s;
     }
 
@@ -235,7 +274,33 @@ public class FXMLEmailPageController {
      * @return
      */
     private String getMessage() {
-        return new Validator().stripTags(messageField.getHtmlText()).trim();
+        Validator v = new Validator();
+
+        String s = v.stripTags(messageField.getHtmlText()).trim();
+        if (!v.isValidMessage(s)) {
+            throw new IllegalArgumentException("The number of characters in your message is too big.");
+        }
+
+        return s;
+    }
+
+    private void showDetails(RyanEmail newValue) {
+        System.out.println(newValue);
+    }
+
+    /**
+     * This method will retrive the list of emails from the received and save to
+     * the database.
+     */
+    public void saveEmailsToDatabase(ConfigProperty prop) {
+        ConfigModule configs = prop.toConfigModule();// create a new ConfigModule
+        EmailDAO dataAccess = new EmailDAO(configs);// Create an EDAO for persistence
+        ActionModule actions = new ActionModule(c);// create a module for sending and receiving.
+        try {
+            dataAccess.saveReceivedEmailsToDb(actions.receiveEmail());
+        } catch (SQLException s) {
+            alertUserMistake(s.getMessage());
+        }
     }
 
 }

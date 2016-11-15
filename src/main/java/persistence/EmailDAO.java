@@ -14,6 +14,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.sql.*;
 import java.util.*;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import jodd.mail.*;
 import jodd.util.MimeTypes;
 import org.slf4j.Logger;
@@ -131,8 +133,9 @@ public class EmailDAO {
      * @return the list of emails.
      * @throws SQLException
      */
-    public List<RyanEmail> findAll() throws SQLException {
-        List<RyanEmail> emails = new ArrayList<RyanEmail>();
+    public ObservableList<RyanEmail> findAll() throws SQLException {
+        ObservableList<RyanEmail> emails = FXCollections
+                .observableArrayList();
 
         String query = "SELECT * FROM EMAIL";
 
@@ -169,6 +172,16 @@ public class EmailDAO {
             }
         }
         return email;
+    }
+    /**
+     * This method will save to the database the received emails.
+     * @param emails
+     * @throws SQLException 
+     */
+    public void saveReceivedEmailsToDb(ArrayList<RyanEmail> emails) throws SQLException{
+        for(int i = 0; i < emails.size(); i++){
+            this.create(emails.get(i));
+        }
     }
 
     /**

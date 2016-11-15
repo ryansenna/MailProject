@@ -3,6 +3,7 @@ package business;
 import beans.RyanEmail;
 import interfaces.Mailer;
 import java.io.File;
+import java.sql.SQLException;
 import java.util.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import jodd.mail.SendMailSession;
 import jodd.mail.SmtpServer;
 import jodd.mail.SmtpSslServer;
 import jodd.util.MimeTypes;
+import persistence.EmailDAO;
 
 /**
  * The class ActionModule is a business class with the purpose of creating,
@@ -134,8 +136,9 @@ public class ActionModule implements Mailer {
      * @return
      */
     @Override
-    public ArrayList<RyanEmail> receiveEmail() {
-
+    public ArrayList<RyanEmail> receiveEmail()throws SQLException {
+        
+        EmailDAO edao = new EmailDAO(c);
         // Create am IMAP server object
         ImapSslServer imapSslServer = c.configImapServer();
 
@@ -147,14 +150,16 @@ public class ActionModule implements Mailer {
         ReceiveMailSession session = imapSslServer.createSession();
         session.open();
 
-        ReceivedEmail[] emails = session.receiveEmailAndMarkSeen(EmailFilter
-                .filter().flag(Flags.Flag.SEEN, false));
+        ReceivedEmail[] emails = session.receiveEmail();
         //close the session
         session.close();
 
         // CONVERT RECEIVED EMAILS TO RYAN EMAILS.
-        receivedEmails = convertToRyanEmail(emails);
-
+        for(RyanEmail e: convertToRyanEmail(emails)){
+            receivedEmails.add(e);
+            edao.create(e);
+        } 
+        
         //return for db purposes and UI
         return receivedEmails;
     }
@@ -193,8 +198,6 @@ public class ActionModule implements Mailer {
             for (int j = 0; j < emailMessageLenght; j++) {
                 ryanEmail.addMessage(receivedEmails[i].getAllMessages().get(j));
             }
-
-            myEmails.add(ryanEmail);
             ryanEmail = new RyanEmail();
         }
         //return my list of emails

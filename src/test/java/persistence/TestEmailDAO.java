@@ -19,6 +19,7 @@ import jodd.mail.MailAddress;
 import jodd.util.MimeTypes;
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,14 +38,13 @@ public class TestEmailDAO {
 
         c = new ConfigModule("smtp.gmail.com", "imap.gmail.com",
                 "sender.rsenna@gmail.com", "thisistest",
-                "receiver.rsenna@gmail.com", "thisistest");
+                "sender.rsenna@gmail.com", "thisistest");
         c.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
         c.setUser("CS1333612");
         c.setPass("secrefer");
 
         try {
             em = new EmailDAO(c);
-            em.buildDB();
         } catch (Exception ex) {
             log.error(ex.getMessage());
         }
@@ -244,4 +244,5 @@ public class TestEmailDAO {
         }
         assertEquals("testFindAll: ", 4, ema.size());
     }
+   
 }

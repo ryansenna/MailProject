@@ -7,6 +7,7 @@ package interfaces;
 
 import business.ConfigModule;
 import beans.RyanEmail;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Optional;
 import jodd.mail.EmailAddress;
@@ -41,7 +42,7 @@ public interface Mailer {
      * It will read messages from the server into the application.
      * @return 
      */
-    public ArrayList<RyanEmail> receiveEmail();
+    public ArrayList<RyanEmail> receiveEmail() throws SQLException;
     /**
      * getter for ConfigBean.
      * @return 

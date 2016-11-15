@@ -64,8 +64,11 @@ public class MainApp extends Application {
         ConfigProperty cp = new ConfigProperty();
         PropertiesIO pio = new PropertiesIO();
         
-        if(pio.loadTextProperties(cp, "", "MailConfig"))
+        if(pio.loadTextProperties(cp, "", "MailConfig")){
+            epc.saveEmailsToDatabase(cp);
+            epc.init();
             return true;
+        }
         return false;
     }
 

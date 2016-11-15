@@ -39,7 +39,7 @@ public class PropertiesIO {
         Path txtFile = get(path, propFileName + ".properties");
 
         // File must exist
-        //if (Files.exists(txtFile)) {
+        if (Files.exists(txtFile)) {
             try (InputStream propFileStream = newInputStream(txtFile);) {
                 prop.load(propFileStream);
             }
@@ -51,7 +51,7 @@ public class PropertiesIO {
             mailConfig.setDbPass(prop.getProperty("dbPass"));
 
             found = true;
-        //}
+        }
         return found;
     }
     /**

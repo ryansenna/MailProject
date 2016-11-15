@@ -7,6 +7,7 @@ package fxcontrollers;
 
 import fileIO.PropertiesIO;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.beans.binding.Bindings;
@@ -46,37 +47,37 @@ public class FrontPageFXMLController {
 
     @FXML
     private PasswordField dbPassField;
-    
+
     private Scene scene;
     private Stage stage;
     private FXMLEmailPageController epc;
     private ConfigProperty cp;// model for the properties.
-    
+
     /**
      * Default constructor
      */
-    public FrontPageFXMLController(){
+    public FrontPageFXMLController() {
         super();
         cp = new ConfigProperty();//init the Model.
     }
-   
+
     /**
-     * Since we cannot pass values trough the constructor,
-     * This method does this dirty job.
-     * 
-     * @param scene 
+     * Since we cannot pass values trough the constructor, This method does this
+     * dirty job.
+     *
+     * @param scene
      * @param stage
-     * @param epc 
+     * @param epc
      */
-    public void setSceneStateSecPage(Scene scene, Stage stage, FXMLEmailPageController epc){
+    public void setSceneStateSecPage(Scene scene, Stage stage, FXMLEmailPageController epc) {
         this.scene = scene;
         this.stage = stage;
         this.epc = epc;
     }
-    
+
     @FXML
-    private void initialize(){
-        
+    private void initialize() {
+
         Bindings.bindBidirectional(emailField.textProperty(), cp.userEmailAddress());
         Bindings.bindBidirectional(passField.textProperty(), cp.password());
         Bindings.bindBidirectional(smtpField.textProperty(), cp.smtpServerName());
