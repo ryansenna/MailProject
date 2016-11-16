@@ -16,6 +16,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
+import persistence.EmailDAO;
 import properties.ConfigProperty;
 
 /**
@@ -25,6 +26,8 @@ import properties.ConfigProperty;
 public class MainApp extends Application {
 
     private FXMLEmailPageController epc;
+    private EmailDAO dbAccess;
+    private ConfigProperty cp;
     private Stage stage;
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -33,6 +36,7 @@ public class MainApp extends Application {
      */
     public MainApp() {
         super();
+        cp = new ConfigProperty(); 
     }
 
     @Override
@@ -42,10 +46,11 @@ public class MainApp extends Application {
         Scene scene1 = createFXMLFrontPageController(scene2);
 
         if (!checkForProperties()) {
-            this.stage.setScene(scene1);// set front page
+            this.stage.setScene(scene1);// set front page.
             
         } else {
-            this.stage.setScene(scene2);//
+            this.stage.setScene(scene2);//set second page.
+            epc.displayTheTable();
         }
 
         this.stage.setTitle("Ryan's Email Service");
@@ -62,10 +67,9 @@ public class MainApp extends Application {
     }
 
     private boolean checkForProperties() throws Exception {
-        ConfigProperty cp = new ConfigProperty();
         PropertiesIO pio = new PropertiesIO();
-        
         if(pio.loadTextProperties(cp, "", "MailConfig")){
+            cp.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
             return true;
         }
         return false;
@@ -103,6 +107,7 @@ public class MainApp extends Application {
         
         epc = loader.getController();// get the controller
         loaded = epc.loadCPProperties();
+        epc.setDAO(new EmailDAO(cp));
         log.error(""+loaded);// load the properties to the config property.
         Scene scene = new Scene(root);// set up the scene
         return scene; // return it.

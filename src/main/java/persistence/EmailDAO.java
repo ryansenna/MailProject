@@ -21,6 +21,7 @@ import jodd.util.MimeTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import properties.ConfigProperty;
+import properties.FXRyanEmail;
 
 /**
  *
@@ -31,7 +32,7 @@ public class EmailDAO {
     private ConfigProperty c;
     private final Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
-    public EmailDAO(ConfigProperty c){
+    public EmailDAO(ConfigProperty c) {
         this.c = c;
         //buildDB();
     }
@@ -40,7 +41,7 @@ public class EmailDAO {
         final String seedDataScript = loadAsString("emailTables.sql");
         try (Connection connection = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());) {
             for (String statement : splitStatements(new StringReader(seedDataScript), ";")) {
-                    connection.prepareStatement(statement).execute();
+                connection.prepareStatement(statement).execute();
             }
         } catch (SQLException e) {
             throw new RuntimeException("Failed seeding database", e);
@@ -134,9 +135,31 @@ public class EmailDAO {
      * @return the list of emails.
      * @throws SQLException
      */
-    public ObservableList<RyanEmail> findAll() throws SQLException {
-        ObservableList<RyanEmail> emails = FXCollections
+    public ObservableList<FXRyanEmail> findAllForFX() throws SQLException {
+        ObservableList<FXRyanEmail> emails = FXCollections
                 .observableArrayList();
+
+        String query = "SELECT emailId, senderAddress, emailsubject, emailRcvdDate FROM EMAIL";
+        log.error(c.getUrl() + ", " + c.getDbUsername() + ", " + c.getDbPass());
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();) {
+            while (rs.next()) {
+                emails.add(createFXRyanEmail(rs));
+            }
+
+        }
+        return emails;
+    }
+    
+        /**
+     * This method will retrieve all Emails from the database.
+     *
+     * @return the list of emails.
+     * @throws SQLException
+     */
+    public List<RyanEmail> findAll() throws SQLException {
+        List<RyanEmail> emails = new ArrayList<RyanEmail>();
 
         String query = "SELECT * FROM EMAIL";
 
@@ -150,6 +173,7 @@ public class EmailDAO {
         }
         return emails;
     }
+    
 
     /**
      * This method will find a particular email based on its id.
@@ -174,13 +198,15 @@ public class EmailDAO {
         }
         return email;
     }
+
     /**
      * This method will save to the database the received emails.
+     *
      * @param emails
-     * @throws SQLException 
+     * @throws SQLException
      */
-    public void saveReceivedEmailsToDb(ArrayList<RyanEmail> emails) throws SQLException{
-        for(int i = 0; i < emails.size(); i++){
+    public void saveReceivedEmailsToDb(ArrayList<RyanEmail> emails) throws SQLException {
+        for (int i = 0; i < emails.size(); i++) {
             this.create(emails.get(i));
         }
     }
@@ -218,6 +244,18 @@ public class EmailDAO {
             email.attach(EmailAttachment.attachment().bytes(a.get(i)));
         }
 
+        return email;
+    }
+
+    private FXRyanEmail createFXRyanEmail(ResultSet rs) throws SQLException {
+        
+        int emailId = rs.getInt("emailId");
+        int messageId = getMessageIdFromDb(emailId);
+        FXRyanEmail email = new FXRyanEmail();
+        email.setSubjectField(rs.getString("emailsubject"));
+        email.setDateField(rs.getTimestamp("emailRcvdDate").toString());
+        email.setFromField(rs.getString("senderAddress"));
+       
         return email;
     }
 

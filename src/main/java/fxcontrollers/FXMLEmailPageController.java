@@ -33,6 +33,7 @@ import org.jsoup.Jsoup;
 import org.slf4j.LoggerFactory;
 import persistence.EmailDAO;
 import properties.ConfigProperty;
+import properties.FXRyanEmail;
 
 /**
  *
@@ -56,16 +57,16 @@ public class FXMLEmailPageController {
     private HTMLEditor messageField;
 
     @FXML
-    private TableView<RyanEmail> tableReceiveField;
+    private TableView<FXRyanEmail> tableReceiveField;
 
     @FXML
-    private TableColumn<RyanEmail, String> fromColumnField;
+    private TableColumn<FXRyanEmail, String> fromColumnField;
 
     @FXML
-    private TableColumn<RyanEmail, String> subjectColumnField;
+    private TableColumn<FXRyanEmail, String> subjectColumnField;
 
     @FXML
-    private TableColumn<RyanEmail, String> dateColumnField;
+    private TableColumn<FXRyanEmail, String> dateColumnField;
 
     // a logger for erros
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
@@ -78,6 +79,7 @@ public class FXMLEmailPageController {
     public FXMLEmailPageController() {
         cp = new ConfigProperty();// create a new ConfigProperty.
         sentEmail = new RyanEmail();
+        am = new ActionModule(cp);// create a module for sending and receiving.
     }
 
     @FXML
@@ -157,19 +159,18 @@ public class FXMLEmailPageController {
 
     }
 
+    public void setDAO(EmailDAO e) {
+        edao = e;
+    }
+
     public boolean loadCPProperties() {
         PropertiesIO pm = new PropertiesIO();
         boolean result = false;// if the properties were loaded or not.
-        //c = cp.toConfigModule();// create a new ConfigModule
-        edao = new EmailDAO(cp);// Create an EDAO for persistence
-        am = new ActionModule(cp);// create a module for sending and receiving.
         try {
             result = pm.loadTextProperties(cp, "", "MailConfig");
-            cp.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
-            am.receiveEmail();
         } catch (IOException ex) {
             log.error("Error 100: The properties were not loaded.");
-        } catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return result;// if it is true, the properties were loaded.
@@ -177,7 +178,8 @@ public class FXMLEmailPageController {
 
     public void displayTheTable() throws SQLException {
         // Add observable list data to the table
-        tableReceiveField.setItems(this.edao.findAll());
+        log.error(""+tableReceiveField);
+        tableReceiveField.setItems(this.edao.findAllForFX());
     }
 
     /**
@@ -287,7 +289,7 @@ public class FXMLEmailPageController {
         return s;
     }
 
-    private void showDetails(RyanEmail newValue) {
+    private void showDetails(FXRyanEmail newValue) {
         System.out.println(newValue);
     }
 }

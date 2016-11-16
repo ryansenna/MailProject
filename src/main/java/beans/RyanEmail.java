@@ -35,10 +35,6 @@ public class RyanEmail extends Email {
     private int messageNumber;
     private Timestamp rcvDate;
 
-    private StringProperty fromField;
-    private StringProperty subjectField;
-    private StringProperty dateField;
-
     public RyanEmail() {
         super();
         attachedMessages = new ArrayList<ReceivedEmail>();
@@ -108,18 +104,6 @@ public class RyanEmail extends Email {
         return rcvDate;
     }
 
-    public String getFromField() {
-        return fromField.get();
-    }
-
-    public String getSubjectField() {
-        return subjectField.get();
-    }
-
-    public String getDateField() {
-        return dateField.get();
-    }
-
     public void setFolder(String folder) {
         this.folder = folder;
     }
@@ -142,30 +126,6 @@ public class RyanEmail extends Email {
 
     public void setAttachments(List<EmailAttachment> attachments) {
         this.attachments = attachments;
-    }
-
-    public void setFromField(String s) {
-        fromField.set(s);
-    }
-
-    public void setSubjectField(String s) {
-        subjectField.set(s);
-    }
-
-    public void setDateField(String s) {
-        dateField.set(s);
-    }
-
-    public StringProperty fromField() {
-        return fromField;
-    }
-
-    public StringProperty subjectField() {
-        return subjectField;
-    }
-
-    public StringProperty dateField() {
-        return dateField;
     }
 
     /**

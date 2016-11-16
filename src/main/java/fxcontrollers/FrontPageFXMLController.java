@@ -20,6 +20,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
+import persistence.EmailDAO;
 import properties.ConfigProperty;
 
 /**
@@ -94,11 +95,18 @@ public class FrontPageFXMLController {
     @FXML
     void onEnter(ActionEvent event) {
         PropertiesIO pIO = new PropertiesIO();
+        EmailDAO edao;
+        ActionModule actions;
         try {
             pIO.writeTextProperties("", "MailConfig", cp);
+            cp.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
+            edao = new EmailDAO(cp);
+            actions = new ActionModule(cp);
+            actions.receiveEmail();
             // Change the scene on the stage
             stage.setScene(scene);
-        } catch (IOException ex) {
+        } catch (Exception ex) {
+            ex.printStackTrace();
             Logger.getLogger(getClass().getName()).log(Level.SEVERE, null, ex);
             // Need to do more than just log the error
         }
