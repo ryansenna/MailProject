@@ -154,6 +154,69 @@ public class EmailDAO {
     }
 
     /**
+     * This method will get a folder name based on the Id
+     *
+     * @param emailId
+     * @return
+     * @throws SQLException
+     */
+    public String getFolderName(int emailId) throws SQLException {
+        String folderName = "";
+        log.error("Email Id was entered " + emailId);
+        log.error(c.getUrl() + ", " + c.getDbUsername() + ", " + c.getDbPass());
+
+        String query = "select folderName from folder where emailId = ?";
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();) {
+            while (rs.next()) {
+                folderName = rs.getString("folderName");
+            }
+
+        }
+        return folderName;
+
+    }
+    
+    /**
+     * This method will get all the folder names in my database.
+     * @return
+     * @throws SQLException 
+     */
+    public List<String> getAllFolderNames() throws SQLException {
+        List<String> folderNames = new ArrayList<>();
+        log.error(c.getUrl() + ", " + c.getDbUsername() + ", " + c.getDbPass());
+
+        String query = "select folderName from folder";
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(query);
+                ResultSet rs = ps.executeQuery();) {
+            while (rs.next()) {
+                String folderName = rs.getString("folderName");
+                folderNames.add(folderName);
+            }
+
+        }
+        return folderNames;
+    }
+    /**
+     * This method will get all folder names that are not inbox or sent since
+     * those are the default ones.
+     * 
+     * @return
+     * @throws SQLException 
+     */
+    public List<String> getFolderNamesThatAreNotInboxOrSent() throws SQLException {
+        List<String> otherThanInboxSent = new ArrayList<String>();
+        List<String> folderNames = getAllFolderNames();
+        for(String folderName : folderNames){
+            if(!folderName.equalsIgnoreCase("inbox") && !folderName.equalsIgnoreCase("sent"))
+                otherThanInboxSent.add(folderName);
+        }
+        return otherThanInboxSent;
+    }
+
+    /**
      * This method will retrieve all Emails from the database.
      *
      * @return the list of emails.
@@ -176,39 +239,20 @@ public class EmailDAO {
     }
 
     /**
-     * This method will get all emails given a particular folder name.
+     * This method, given a folder name, will find all email ids that belong to
+     * that folder name, retrieve the email correspondent to that email id add
+     * to a list of emails and return it.
      *
      * @param folderName
      * @return
-     */
-    private List<Integer> getEmailIdsFromFolder(String folderName) throws SQLException {
-        List<Integer> emails = new ArrayList<Integer>();
-        String query = "SELECT EMAILID FROM FOLDER WHERE FOLDERNAME = ?";
-        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
-                PreparedStatement ps = conn.prepareStatement(query);) {
-            ps.setString(1, folderName);
-            try (ResultSet rs = ps.executeQuery();) {
-                while (rs.next()) {
-                    emails.add(rs.getInt("emailId"));
-                }
-            }
-        }
-        return emails;
-    }
-    /**
-     * This method, given a folder name, will find all email ids that belong 
-     * to that folder name, retrieve the email correspondent to that email id
-     * add to a list of emails and return it.
-     * @param folderName
-     * @return
-     * @throws SQLException 
+     * @throws SQLException
      */
     public ObservableList<FXRyanEmail> findAllForFolder(String folderName) throws SQLException {
         ObservableList<FXRyanEmail> emails = FXCollections
                 .observableArrayList();
         List<Integer> emailIds = getEmailIdsFromFolder(folderName);// get all email ids that belong to a folder.
         // loop trough the ids to get a single email so I can add to my list and display.
-        for(Integer i : emailIds){
+        for (Integer i : emailIds) {
             RyanEmail email = findEmail(i.intValue());
             log.error(email.getFolder());
             emails.add(email.toFX());
@@ -250,6 +294,27 @@ public class EmailDAO {
         for (int i = 0; i < emails.size(); i++) {
             this.create(emails.get(i));
         }
+    }
+
+    /**
+     * This method will get all emails given a particular folder name.
+     *
+     * @param folderName
+     * @return
+     */
+    private List<Integer> getEmailIdsFromFolder(String folderName) throws SQLException {
+        List<Integer> emails = new ArrayList<Integer>();
+        String query = "SELECT EMAILID FROM FOLDER WHERE FOLDERNAME = ?";
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setString(1, folderName);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    emails.add(rs.getInt("emailId"));
+                }
+            }
+        }
+        return emails;
     }
 
     /**

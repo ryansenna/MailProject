@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javafx.event.ActionEvent;
@@ -88,6 +89,7 @@ public class FXMLEmailPageController {
     private ActionModule am;
     private ConfigModule c;
     private RyanEmail sentEmail;
+    private List<String> folderNames;
 
     private int ctr = 0;
 
@@ -96,6 +98,9 @@ public class FXMLEmailPageController {
         cp.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
         sentEmail = new RyanEmail();
         am = new ActionModule(cp);// create a module for sending and receiving.
+        folderNames = new ArrayList<String>();// create a new list of folders to hold all new folder names.
+        folderNames.add("inbox");
+        folderNames.add("sent");
     }
 
     @FXML
@@ -144,7 +149,6 @@ public class FXMLEmailPageController {
                 });
     }
 
-    @FXML
     private void createItem(String itemName) {
         TreeItem<String> newItem = new TreeItem<>();
         newItem.setValue(itemName);
@@ -379,6 +383,14 @@ public class FXMLEmailPageController {
         try {
             tableReceiveField.setItems(this.edao.findAllForFolder(item));
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void loadFolderNamesFromDatabase(){
+        try{
+            folderNames.addAll(edao.getFolderNamesThatAreNotInboxOrSent());
+        } catch(SQLException e){
             e.printStackTrace();
         }
     }
