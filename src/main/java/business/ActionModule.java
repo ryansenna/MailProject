@@ -156,10 +156,15 @@ public class ActionModule implements Mailer {
         log.error("TELL ME WHO IS THIS VARIABLE" + c.getImapServerName());
         session.open();
 
-        ReceivedEmail[] emails = session.receiveEmail();
+        ReceivedEmail[] emails = session.receiveEmailAndMarkSeen(EmailFilter
+                .filter().flag(Flags.Flag.SEEN, false));
         //close the session
         session.close();
-
+        if(emails == null)// null means that all messages have been read on the server.
+        {
+            return new ArrayList<RyanEmail>();// return an empty list because
+            // I dont wanna deal with NPE in the future.
+        }
         List<RyanEmail> em = convertToRyanEmail(emails);
         // CONVERT RECEIVED EMAILS TO RYAN EMAILS.
         for(int i = 0; i < em.size(); i++){

@@ -17,12 +17,19 @@ import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -57,6 +64,9 @@ public class FXMLEmailPageController {
     private HTMLEditor messageField;
 
     @FXML
+    private Button downBtn;
+
+    @FXML
     private TableView<FXRyanEmail> tableReceiveField;
 
     @FXML
@@ -68,6 +78,9 @@ public class FXMLEmailPageController {
     @FXML
     private TableColumn<FXRyanEmail, String> dateColumnField;
 
+    @FXML
+    private TreeView<String> treeFolders;
+
     // a logger for erros
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
     private ConfigProperty cp;
@@ -76,8 +89,11 @@ public class FXMLEmailPageController {
     private ConfigModule c;
     private RyanEmail sentEmail;
 
+    private int ctr = 0;
+
     public FXMLEmailPageController() {
         cp = new ConfigProperty();// create a new ConfigProperty.
+        cp.setUrl("jdbc:mysql://waldo2.dawsoncollege.qc.ca:3306/CS1333612");
         sentEmail = new RyanEmail();
         am = new ActionModule(cp);// create a module for sending and receiving.
     }
@@ -88,9 +104,52 @@ public class FXMLEmailPageController {
         fromColumnField.setCellValueFactory(cellData -> cellData.getValue().fromField());
         subjectColumnField.setCellValueFactory(cellData -> cellData.getValue().subjectField());
         dateColumnField.setCellValueFactory(cellData -> cellData.getValue().dateField());
-
+        treeFolders.setEditable(true);
+        
+        setTreeView();
         tableReceiveField.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> showDetails(newValue));
+
+    }
+    
+    private void setTreeView(){
+        TreeItem<String> root = new TreeItem<>();
+        root.setValue("Folders");
+        root.setExpanded(true);
+        treeFolders.setRoot(root);
+        
+        treeFolders.setCellFactory(tree ->{
+            TreeCell<String> cell = new TreeCell<String>(){
+                @Override
+                protected void updateItem(String item, boolean empty){
+                    super.updateItem(item, empty);
+                    if(empty){
+                        setText(null);
+                    }else{
+                        setText(item);
+                    }
+                }
+            };
+            return cell;
+        });
+        
+        createItem("inbox");
+        createItem("sent");
+        
+        treeFolders.getSelectionModel().selectedItemProperty()
+                .addListener((b, oldValue, newValue) -> {
+                    if(newValue != null){
+                        displayOnlyForThisItem(newValue.getValue());
+                    }
+                });
+    }
+
+    @FXML
+    private void createItem(String itemName) {
+        TreeItem<String> newItem = new TreeItem<>();
+        newItem.setValue(itemName);
+
+        treeFolders.getRoot().getChildren().add(newItem);
     }
 
     @FXML
@@ -131,11 +190,10 @@ public class FXMLEmailPageController {
      */
     @FXML
     void onSendClicked(ActionEvent event) {
-        c = cp.toConfigModule();// create a new ConfigModule
         edao = new EmailDAO(cp);// Create an EDAO for persistence
         am = new ActionModule(cp);// create a module for sending and receiving.
 
-        log.error("THIS VAR WAS LOADED :" + c.getSmtpServerName());
+        log.error("THIS VAR WAS LOADED :" + cp.getSmtpServerName());
 
         try {
             setEmail();
@@ -159,6 +217,21 @@ public class FXMLEmailPageController {
 
     }
 
+    @FXML
+    void onRefreshClicked(ActionEvent event) {
+        try {
+            am.receiveEmail();// get the emails from the server and save to my db.
+            displayTheTable();// display on the screen.
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    void onFolderClicked(ActionEvent event) {
+        Button btn = (Button) event.getSource();
+    }
+
     public void setDAO(EmailDAO e) {
         edao = e;
     }
@@ -178,7 +251,7 @@ public class FXMLEmailPageController {
 
     public void displayTheTable() throws SQLException {
         // Add observable list data to the table
-        log.error(""+tableReceiveField);
+        log.error("" + tableReceiveField);
         tableReceiveField.setItems(this.edao.findAllForFX());
     }
 
@@ -289,7 +362,24 @@ public class FXMLEmailPageController {
         return s;
     }
 
+    /**
+     * This Method will show the details about a particular email such as its
+     * messages, to, subject, etc.
+     *
+     * @param newValue
+     */
     private void showDetails(FXRyanEmail newValue) {
         System.out.println(newValue);
+        this.messageField.setHtmlText(newValue.getMessageField());
+        this.toField.setText(newValue.getToField());
+
+    }
+
+    private void displayOnlyForThisItem(String item) {
+        try {
+            tableReceiveField.setItems(this.edao.findAllForFolder(item));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -70,7 +70,7 @@ public class EmailDAO {
         String insertIntoAttachments = "INSERT INTO ATTACHMENTS(MESSAGEFILE, MESSAGEID) VALUES(?, ?);";
         String insertIntoEmailAddesses
                 = "INSERT INTO EMAILADDRESS(ADDRESS, EMAILTYPE, EMAILID) VALUES(?,?,?)";
-
+        log.error(c.getUrl() + " " + c.getDbUsername() + " " + c.getDbPass());
         try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement psEmail = conn.prepareStatement(insertIntoEmail);
                 PreparedStatement psFolder = conn.prepareStatement(insertIntoFolder);
@@ -139,20 +139,21 @@ public class EmailDAO {
         ObservableList<FXRyanEmail> emails = FXCollections
                 .observableArrayList();
 
-        String query = "SELECT emailId, senderAddress, emailsubject, emailRcvdDate FROM EMAIL";
+        String query = "SELECT * FROM EMAIL";
         log.error(c.getUrl() + ", " + c.getDbUsername() + ", " + c.getDbPass());
         try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);
                 ResultSet rs = ps.executeQuery();) {
             while (rs.next()) {
-                emails.add(createFXRyanEmail(rs));
+                RyanEmail email = createEmail(rs);
+                emails.add(email.toFX());
             }
 
         }
         return emails;
     }
-    
-        /**
+
+    /**
      * This method will retrieve all Emails from the database.
      *
      * @return the list of emails.
@@ -173,7 +174,47 @@ public class EmailDAO {
         }
         return emails;
     }
-    
+
+    /**
+     * This method will get all emails given a particular folder name.
+     *
+     * @param folderName
+     * @return
+     */
+    private List<Integer> getEmailIdsFromFolder(String folderName) throws SQLException {
+        List<Integer> emails = new ArrayList<Integer>();
+        String query = "SELECT EMAILID FROM FOLDER WHERE FOLDERNAME = ?";
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setString(1, folderName);
+            try (ResultSet rs = ps.executeQuery();) {
+                while (rs.next()) {
+                    emails.add(rs.getInt("emailId"));
+                }
+            }
+        }
+        return emails;
+    }
+    /**
+     * This method, given a folder name, will find all email ids that belong 
+     * to that folder name, retrieve the email correspondent to that email id
+     * add to a list of emails and return it.
+     * @param folderName
+     * @return
+     * @throws SQLException 
+     */
+    public ObservableList<FXRyanEmail> findAllForFolder(String folderName) throws SQLException {
+        ObservableList<FXRyanEmail> emails = FXCollections
+                .observableArrayList();
+        List<Integer> emailIds = getEmailIdsFromFolder(folderName);// get all email ids that belong to a folder.
+        // loop trough the ids to get a single email so I can add to my list and display.
+        for(Integer i : emailIds){
+            RyanEmail email = findEmail(i.intValue());
+            log.error(email.getFolder());
+            emails.add(email.toFX());
+        }
+        return emails;
+    }
 
     /**
      * This method will find a particular email based on its id.
@@ -228,6 +269,7 @@ public class EmailDAO {
         email.setSentDate(rs.getTimestamp("emailSentDate"));
         email.setRcvDate(rs.getTimestamp("emailRcvdDate"));
         email.setFrom(new MailAddress(rs.getString("senderAddress")));
+
         // get the messages at the messages table
         email.addMessage(getMessageTextFromDb(emailId));
         // get the folder from the folder table.
@@ -248,14 +290,14 @@ public class EmailDAO {
     }
 
     private FXRyanEmail createFXRyanEmail(ResultSet rs) throws SQLException {
-        
+
         int emailId = rs.getInt("emailId");
         int messageId = getMessageIdFromDb(emailId);
         FXRyanEmail email = new FXRyanEmail();
         email.setSubjectField(rs.getString("emailsubject"));
         email.setDateField(rs.getTimestamp("emailRcvdDate").toString());
         email.setFromField(rs.getString("senderAddress"));
-       
+
         return email;
     }
 

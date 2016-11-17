@@ -52,7 +52,6 @@ public class MainApp extends Application {
             this.stage.setScene(scene2);//set second page.
             epc.displayTheTable();
         }
-
         this.stage.setTitle("Ryan's Email Service");
 
         this.stage.show();

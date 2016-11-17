@@ -7,6 +7,7 @@ package properties;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import jodd.mail.EmailAttachment;
 
 /**
  *
@@ -17,12 +18,18 @@ public class FXRyanEmail {
     private StringProperty fromField;
     private StringProperty subjectField;
     private StringProperty dateField;
+    private StringProperty messageField;
+    private StringProperty toField;
+    private StringProperty ccField;
 
     public FXRyanEmail() {
         super();
         this.fromField = new SimpleStringProperty("");
         this.subjectField = new SimpleStringProperty("");
         this.dateField = new SimpleStringProperty("");
+        this.messageField = new SimpleStringProperty("");
+        this.toField = new SimpleStringProperty("");
+        this.ccField = new SimpleStringProperty("");
     }
 
     public String getFromField() {
@@ -37,6 +44,17 @@ public class FXRyanEmail {
         return dateField.get();
     }
 
+    public String getMessageField() {
+        return messageField.get();
+    }
+
+    public String getToField() {
+        return toField.get();
+    }
+
+    public String getCcField() {
+        return ccField.get();
+    }
     public void setFromField(String s) {
         fromField.set(s);
     }
@@ -49,6 +67,19 @@ public class FXRyanEmail {
         dateField.set(s);
     }
 
+    public void setMessageField(String s) {
+        messageField.set(s);
+    }
+
+    public void setToField(String s) {
+        toField.set(s);
+    }
+
+    public void setCcField(String s) {
+        ccField.set(s);
+    }
+
+
     public StringProperty fromField() {
         return fromField;
     }
@@ -59,6 +90,18 @@ public class FXRyanEmail {
 
     public StringProperty dateField() {
         return dateField;
+    }
+
+    public StringProperty messageField() {
+        return messageField;
+    }
+
+    public StringProperty toField() {
+        return toField;
+    }
+
+    public StringProperty ccField() {
+        return ccField;
     }
 
 }

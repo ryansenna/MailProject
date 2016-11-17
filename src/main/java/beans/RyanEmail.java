@@ -17,6 +17,8 @@ import jodd.mail.Email;
 import jodd.mail.EmailAttachment;
 import jodd.mail.MailAddress;
 import jodd.mail.ReceivedEmail;
+import org.slf4j.LoggerFactory;
+import properties.FXRyanEmail;
 
 /**
  * RyanEmail is a definition class with the purpose to give a definition for an
@@ -34,6 +36,7 @@ public class RyanEmail extends Email {
     private Flags flags;
     private int messageNumber;
     private Timestamp rcvDate;
+    private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     public RyanEmail() {
         super();
@@ -126,6 +129,33 @@ public class RyanEmail extends Email {
 
     public void setAttachments(List<EmailAttachment> attachments) {
         this.attachments = attachments;
+    }
+    public FXRyanEmail toFX(){
+        
+        FXRyanEmail email = new FXRyanEmail();
+        
+        email.setFromField(this.getFrom().getEmail());// set from
+        email.setSubjectField(this.getSubject());//set subject
+        email.setDateField(this.getRcvDate().toString());// set date
+        
+        // get the message from this email.
+        email.setMessageField(this.getAllMessages().get(0).getContent());
+        //getToAddresses
+        email.setToField(getAddresses(this.getTo()));
+        email.setCcField(getAddresses(this.getCc()));// get bcc addresses
+        
+        
+        return email;
+    }
+
+    private String getAddresses(MailAddress[] to) {
+        String s = "";
+        for(MailAddress a : to){
+            s += a.getEmail() + ",";
+        }
+        //remove the last comma
+        //s = s.substring(0,s.lastIndexOf(','));
+        return s;
     }
 
     /**
