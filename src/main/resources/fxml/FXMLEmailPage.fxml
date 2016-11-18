@@ -29,16 +29,16 @@
               <MenuItem mnemonicParsing="false" text="Close" />
             </items>
           </Menu>
-          <Menu mnemonicParsing="false" text="Edit">
-            <items>
-              <MenuItem mnemonicParsing="false" text="Delete" />
-            </items>
-          </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
               <MenuItem mnemonicParsing="false" text="About" />
             </items>
           </Menu>
+            <Menu mnemonicParsing="false" text="About">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Action 1" />
+              </items>
+            </Menu>
         </menus>
       </MenuBar>
    </top>
@@ -49,6 +49,7 @@
               <items>
                 <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefreshClicked" text="Refresh" />
                   <Button fx:id="newfolderBtn" mnemonicParsing="false" onAction="#onNewFolderClicked" text="New Folder" />
+                  <Button mnemonicParsing="false" text="New Email" />
               </items>
             </ToolBar>
          </top>
@@ -117,12 +118,9 @@
                         </HBox>
                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="20.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                            <children>
-                              <Button mnemonicParsing="false" onAction="#onAttachmentsClicked" text="Attachments" />
-                              <Button mnemonicParsing="false" onAction="#onEmbeddedClicked" text="Embed">
-                                 <font>
-                                    <Font name="Arial Bold" size="12.0" />
-                                 </font>
-                              </Button>
+                              <Button mnemonicParsing="false" text="Reply" />
+                              <Button mnemonicParsing="false" text="Delete" />
+                              <Button mnemonicParsing="false" onAction="#onAttachmentsClicked" text="Attach!" />
                               <Button mnemonicParsing="false" onAction="#onSendClicked" text="Send" />
                            </children>
                         </HBox>
