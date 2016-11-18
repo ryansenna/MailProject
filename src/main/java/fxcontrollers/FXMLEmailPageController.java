@@ -13,31 +13,29 @@ import fileIO.PropertiesIO;
 import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.fxml.FXML;
+import javafx.geometry.Pos;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import jodd.mail.EmailAttachment;
 import jodd.mail.MailAddress;
 import jodd.util.MimeTypes;
-import org.jsoup.Jsoup;
 import org.slf4j.LoggerFactory;
 import persistence.EmailDAO;
 import properties.ConfigProperty;
@@ -90,6 +88,7 @@ public class FXMLEmailPageController {
     private ConfigModule c;
     private RyanEmail sentEmail;
     private List<String> folderNames;
+    private Stage stage;
 
     private int ctr = 0;
 
@@ -110,40 +109,42 @@ public class FXMLEmailPageController {
         subjectColumnField.setCellValueFactory(cellData -> cellData.getValue().subjectField());
         dateColumnField.setCellValueFactory(cellData -> cellData.getValue().dateField());
         treeFolders.setEditable(true);
-        
+
         setTreeView();
         tableReceiveField.getSelectionModel().selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> showDetails(newValue));
 
     }
-    
-    private void setTreeView(){
+
+    private void setTreeView() {
         TreeItem<String> root = new TreeItem<>();
         root.setValue("Folders");
         root.setExpanded(true);
         treeFolders.setRoot(root);
-        
-        treeFolders.setCellFactory(tree ->{
-            TreeCell<String> cell = new TreeCell<String>(){
+
+        treeFolders.setCellFactory(tree -> {
+            TreeCell<String> cell = new TreeCell<String>() {
                 @Override
-                protected void updateItem(String item, boolean empty){
+                protected void updateItem(String item, boolean empty) {
                     super.updateItem(item, empty);
-                    if(empty){
+                    if (empty) {
                         setText(null);
-                    }else{
+                    } else {
                         setText(item);
                     }
                 }
             };
             return cell;
         });
-        
-        createItem("inbox");
-        createItem("sent");
-        
+        // this will create a TreeItem  for every different folder
+        // stored in database.
+        for (String folderName : folderNames) {
+            createItem(folderName);
+        }
+
         treeFolders.getSelectionModel().selectedItemProperty()
                 .addListener((b, oldValue, newValue) -> {
-                    if(newValue != null){
+                    if (newValue != null) {
                         displayOnlyForThisItem(newValue.getValue());
                     }
                 });
@@ -232,12 +233,47 @@ public class FXMLEmailPageController {
     }
 
     @FXML
-    void onFolderClicked(ActionEvent event) {
-        Button btn = (Button) event.getSource();
+    void onNewFolderClicked(ActionEvent event) {
+        setUpPopUpWindow();
+    }
+    
+    private void setUpPopUpWindow(){
+        Stage popUpStage = new Stage();
+        popUpStage.setTitle("Create a New Folder");
+        Label label = new Label();
+        label.setText("Enter New Folder Name");
+        Button okBtn = new Button("OK");
+        TextField newFolderName = new TextField();
+        newFolderName.setPromptText("Enter a New Folder Name");
+        okBtn.setOnAction(e -> okClicked(e,newFolderName, popUpStage));
+       
+        VBox layout = new VBox(10);
+        layout.getChildren().add(label);
+        layout.getChildren().add(newFolderName);
+        layout.getChildren().add(okBtn);
+        layout.setAlignment(Pos.CENTER);
+        
+        Scene scene = new Scene(layout, 200, 200);
+        popUpStage.setScene(scene);
+        popUpStage.show();
+        
+    }
+    
+    private void okClicked(ActionEvent e, TextField t, Stage s){
+        if(t.getText() != null && !t.getText().isEmpty()){
+            folderNames.add(t.getText());
+            createItem(t.getText());
+            s.close();
+        }
+        
     }
 
     public void setDAO(EmailDAO e) {
         edao = e;
+    }
+
+    public void setStage(Stage s) {
+        stage = s;
     }
 
     public boolean loadCPProperties() {
@@ -256,7 +292,10 @@ public class FXMLEmailPageController {
     public void displayTheTable() throws SQLException {
         // Add observable list data to the table
         log.error("" + tableReceiveField);
+        loadFolderNamesFromDatabase();// this will get all folder names
+        // that are not inbox or sent, since inbox and sent are pre loaded by default.
         tableReceiveField.setItems(this.edao.findAllForFX());
+
     }
 
     /**
@@ -386,11 +425,11 @@ public class FXMLEmailPageController {
             e.printStackTrace();
         }
     }
-    
-    private void loadFolderNamesFromDatabase(){
-        try{
+
+    private void loadFolderNamesFromDatabase() {
+        try {
             folderNames.addAll(edao.getFolderNamesThatAreNotInboxOrSent());
-        } catch(SQLException e){
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

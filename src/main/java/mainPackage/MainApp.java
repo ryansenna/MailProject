@@ -106,6 +106,7 @@ public class MainApp extends Application {
         
         epc = loader.getController();// get the controller
         loaded = epc.loadCPProperties();
+        epc.setStage(stage);
         epc.setDAO(new EmailDAO(cp));
         log.error(""+loaded);// load the properties to the config property.
         Scene scene = new Scene(root);// set up the scene

@@ -48,6 +48,7 @@
             <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <items>
                 <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefreshClicked" text="Refresh" />
+                  <Button fx:id="newfolderBtn" mnemonicParsing="false" onAction="#onNewFolderClicked" text="New Folder" />
               </items>
             </ToolBar>
          </top>
