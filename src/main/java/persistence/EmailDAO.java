@@ -85,7 +85,7 @@ public class EmailDAO {
 
             numRowAffected = psEmail.executeUpdate();
             log.info("# of records created : " + numRowAffected);
-            int emailId = getEmailIdFromDb(sentDate);
+            int emailId = getEmailIdFromDb(email.getRcvDate());
             //load the folder
             psFolder.setString(1, email.getFolder());
             //load the email Id that this folder belongs to.
@@ -444,7 +444,7 @@ public class EmailDAO {
      */
     private int getEmailIdFromDb(Timestamp t) throws SQLException {
 
-        String query = "SELECT EMAILID FROM EMAIL WHERE EMAILSENTDATE = ?";
+        String query = "SELECT EMAILID FROM EMAIL WHERE EMAILRCVDDATE = ?";
         try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setTimestamp(1, t);

@@ -21,6 +21,8 @@ public class FXRyanEmail {
     private StringProperty messageField;
     private StringProperty toField;
     private StringProperty ccField;
+    private StringProperty folderField;
+    private byte[] attachment;
 
     public FXRyanEmail() {
         super();
@@ -30,6 +32,8 @@ public class FXRyanEmail {
         this.messageField = new SimpleStringProperty("");
         this.toField = new SimpleStringProperty("");
         this.ccField = new SimpleStringProperty("");
+        this.folderField = new SimpleStringProperty("");
+        this.attachment = new byte[0];
     }
 
     public String getFromField() {
@@ -55,6 +59,16 @@ public class FXRyanEmail {
     public String getCcField() {
         return ccField.get();
     }
+
+    public String getFolderField() {
+        return folderField.get();
+    }
+
+    public byte[] getAttachment() {
+        return attachment;
+    }
+    
+
     public void setFromField(String s) {
         fromField.set(s);
     }
@@ -79,6 +93,14 @@ public class FXRyanEmail {
         ccField.set(s);
     }
 
+    public void setFolderField(String s) {
+        folderField.set(s);
+    }
+
+    public void setAttachment(byte[] attachment) {
+        this.attachment = attachment;
+    }
+    
 
     public StringProperty fromField() {
         return fromField;
@@ -102,6 +124,10 @@ public class FXRyanEmail {
 
     public StringProperty ccField() {
         return ccField;
+    }
+
+    public StringProperty folderField() {
+        return folderField;
     }
 
 }

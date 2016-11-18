@@ -14,7 +14,10 @@ import java.io.File;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
@@ -89,6 +92,7 @@ public class FXMLEmailPageController {
     private RyanEmail sentEmail;
     private List<String> folderNames;
     private Stage stage;
+    private ObservableList<FXRyanEmail> allEmails;
 
     private int ctr = 0;
 
@@ -98,13 +102,13 @@ public class FXMLEmailPageController {
         sentEmail = new RyanEmail();
         am = new ActionModule(cp);// create a module for sending and receiving.
         folderNames = new ArrayList<String>();// create a new list of folders to hold all new folder names.
+        allEmails = FXCollections.observableArrayList();// create a list of emails to display.
         folderNames.add("inbox");
         folderNames.add("sent");
     }
 
     @FXML
     private void initialize() {
-        //this.saveEmailsToDatabase(cp);
         fromColumnField.setCellValueFactory(cellData -> cellData.getValue().fromField());
         subjectColumnField.setCellValueFactory(cellData -> cellData.getValue().subjectField());
         dateColumnField.setCellValueFactory(cellData -> cellData.getValue().dateField());
@@ -150,6 +154,11 @@ public class FXMLEmailPageController {
                 });
     }
 
+    /**
+     * This method creates a tree item into my tree view.
+     *
+     * @param itemName
+     */
     private void createItem(String itemName) {
         TreeItem<String> newItem = new TreeItem<>();
         newItem.setValue(itemName);
@@ -236,8 +245,12 @@ public class FXMLEmailPageController {
     void onNewFolderClicked(ActionEvent event) {
         setUpPopUpWindow();
     }
-    
-    private void setUpPopUpWindow(){
+
+    /**
+     * This method will simply set upo the pop up window for the creation of a
+     * new folder.
+     */
+    private void setUpPopUpWindow() {
         Stage popUpStage = new Stage();
         popUpStage.setTitle("Create a New Folder");
         Label label = new Label();
@@ -245,27 +258,36 @@ public class FXMLEmailPageController {
         Button okBtn = new Button("OK");
         TextField newFolderName = new TextField();
         newFolderName.setPromptText("Enter a New Folder Name");
-        okBtn.setOnAction(e -> okClicked(e,newFolderName, popUpStage));
-       
+        okBtn.setOnAction(e -> okClicked(e, newFolderName, popUpStage));
+
         VBox layout = new VBox(10);
         layout.getChildren().add(label);
         layout.getChildren().add(newFolderName);
         layout.getChildren().add(okBtn);
         layout.setAlignment(Pos.CENTER);
-        
+
         Scene scene = new Scene(layout, 200, 200);
         popUpStage.setScene(scene);
         popUpStage.show();
-        
+
     }
-    
-    private void okClicked(ActionEvent e, TextField t, Stage s){
-        if(t.getText() != null && !t.getText().isEmpty()){
+
+    /**
+     * This helper method is for when the person clicks the ok button at the pop
+     * up stage. When the person clicks, it adds whatever the user wrote to the
+     * list of folder names.
+     *
+     * @param e the event
+     * @param the text field in the second stage.
+     * @param s the stage itself.
+     */
+    private void okClicked(ActionEvent e, TextField t, Stage s) {
+        if (t.getText() != null && !t.getText().isEmpty()) {
             folderNames.add(t.getText());
             createItem(t.getText());
             s.close();
         }
-        
+
     }
 
     public void setDAO(EmailDAO e) {
@@ -294,7 +316,15 @@ public class FXMLEmailPageController {
         log.error("" + tableReceiveField);
         loadFolderNamesFromDatabase();// this will get all folder names
         // that are not inbox or sent, since inbox and sent are pre loaded by default.
-        tableReceiveField.setItems(this.edao.findAllForFX());
+        allEmails = this.edao.findAllForFX();
+        ObservableList<FXRyanEmail> inboxEmails = FXCollections
+                .observableArrayList();
+        for (FXRyanEmail e : allEmails) {
+            if (e.getFolderField().equalsIgnoreCase("inbox")) {
+                inboxEmails.add(e);
+            }
+        }
+        tableReceiveField.setItems(inboxEmails);
 
     }
 
@@ -303,7 +333,7 @@ public class FXMLEmailPageController {
      */
     private void setEmail() {
         sentEmail.subject(this.getSubject());
-        sentEmail.addMessage(this.getMessage(), MimeTypes.MIME_TEXT_PLAIN);
+        sentEmail.addMessage(this.getMessage(), MimeTypes.MIME_TEXT_HTML);
         sentEmail.setTo(this.getToField(toField));// get the To Addresses.
         sentEmail.setCc(this.getMailAddresses(ccField));
         sentEmail.setBcc(this.getMailAddresses(bccField));
@@ -397,7 +427,7 @@ public class FXMLEmailPageController {
     private String getMessage() {
         Validator v = new Validator();
 
-        String s = v.stripTags(messageField.getHtmlText()).trim();
+        String s = messageField.getHtmlText().trim();
         if (!v.isValidMessage(s)) {
             throw new IllegalArgumentException("The number of characters in your message is too big.");
         }
@@ -412,15 +442,33 @@ public class FXMLEmailPageController {
      * @param newValue
      */
     private void showDetails(FXRyanEmail newValue) {
-        System.out.println(newValue);
-        this.messageField.setHtmlText(newValue.getMessageField());
+        log.error(newValue.toString());
+        this.messageField.setHtmlText(newValue.getMessageField() + "\n"
+                + replaceCid(newValue.getAttachment()));
+        this.subjectField.setText(newValue.getSubjectField());
         this.toField.setText(newValue.getToField());
 
     }
 
+    /**
+     * Based on the foder name, this method will search for the email that
+     * belongs to that fodler and set the view for that specific folder. Instead
+     * of making a query to the database to look for this, I load all the emails
+     * and look for it at a local observable list. Since I was getting very slow
+     * performances this way seems to be much quicker.
+     *
+     * @param item the folder name.
+     */
     private void displayOnlyForThisItem(String item) {
         try {
-            tableReceiveField.setItems(this.edao.findAllForFolder(item));
+            ObservableList<FXRyanEmail> itemEmails = FXCollections
+                    .observableArrayList();
+            for (FXRyanEmail email : allEmails) {
+                if (email.getFolderField().equalsIgnoreCase(item)) {
+                    itemEmails.add(email);
+                }
+            }
+            tableReceiveField.setItems(itemEmails);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -432,5 +480,22 @@ public class FXMLEmailPageController {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
+
+    private String replaceCid(byte[] attachment) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>\n"
+                + "<head>\n"
+                + "<meta charset=\"ISO-8859-1\">\n"
+                + "<title>Insert title here</title>\n"
+                + "</head>\n"
+                + "<body>\n");
+        sb.append("<img src=\"data:image/jpg;base64,")
+                // Encode a byte array to a Base64 string
+                .append(Base64.getMimeEncoder().encodeToString(attachment))
+                .append("\"/>");
+        sb.append("</body>\n"
+                + "</html>");
+        return sb.toString();
     }
 }

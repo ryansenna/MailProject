@@ -11,7 +11,6 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.beans.property.StringProperty;
 import javax.mail.Flags;
 import jodd.mail.Email;
 import jodd.mail.EmailAttachment;
@@ -143,6 +142,9 @@ public class RyanEmail extends Email {
         //getToAddresses
         email.setToField(getAddresses(this.getTo()));
         email.setCcField(getAddresses(this.getCc()));// get bcc addresses
+        email.setFolderField(this.getFolder());// the folder from this particular email.
+        if(this.getAttachments() != null)
+            email.setAttachment(this.getAttachments().get(0).toByteArray());// get the attachments.
         
         
         return email;
