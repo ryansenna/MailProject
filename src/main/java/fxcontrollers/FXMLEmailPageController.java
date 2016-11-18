@@ -242,6 +242,7 @@ public class FXMLEmailPageController {
 
     @FXML
     void onNewEmailClicked(ActionEvent event) {
+        clearFields();
         sendField.setDisable(false);
     }
 
@@ -496,11 +497,11 @@ public class FXMLEmailPageController {
      * @param email the email to be changed.
      */
     private void onReplyClicked(ActionEvent e, FXRyanEmail email) {
-        String line = "===============================================";
+        String line = "<br><br>===============================================<br><br>";
         if (email.getAttachment().length == 0) {
-            this.messageField.setHtmlText(line + "\n" +email.getMessageField());
+            this.messageField.setHtmlText(line + email.getMessageField());
         } else {
-            this.messageField.setHtmlText(line + "\n" +email.getMessageField() + "\n"
+            this.messageField.setHtmlText(line + email.getMessageField() + "\n"
                     + replaceCid(email.getAttachment()));
         }
         this.subjectField.setText("Re: " + email.getSubjectField());
