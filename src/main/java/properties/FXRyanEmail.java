@@ -18,6 +18,7 @@ public class FXRyanEmail {
     private StringProperty fromField;
     private StringProperty subjectField;
     private StringProperty dateField;
+    private StringProperty rcvdDateField;
     private StringProperty messageField;
     private StringProperty toField;
     private StringProperty ccField;
@@ -29,6 +30,7 @@ public class FXRyanEmail {
         this.fromField = new SimpleStringProperty("");
         this.subjectField = new SimpleStringProperty("");
         this.dateField = new SimpleStringProperty("");
+        this.rcvdDateField = new SimpleStringProperty("");
         this.messageField = new SimpleStringProperty("");
         this.toField = new SimpleStringProperty("");
         this.ccField = new SimpleStringProperty("");
@@ -67,7 +69,10 @@ public class FXRyanEmail {
     public byte[] getAttachment() {
         return attachment;
     }
-    
+
+    public String getRcvdDateField() {
+        return rcvdDateField.get();
+    }
 
     public void setFromField(String s) {
         fromField.set(s);
@@ -100,7 +105,10 @@ public class FXRyanEmail {
     public void setAttachment(byte[] attachment) {
         this.attachment = attachment;
     }
-    
+
+    public void setRcvdDateField(String s) {
+        rcvdDateField.set(s);
+    }
 
     public StringProperty fromField() {
         return fromField;
@@ -128,6 +136,10 @@ public class FXRyanEmail {
 
     public StringProperty folderField() {
         return folderField;
+    }
+
+    public StringProperty rcvdDateField() {
+        return rcvdDateField;
     }
 
 }

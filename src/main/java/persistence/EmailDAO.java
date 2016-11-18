@@ -112,15 +112,80 @@ public class EmailDAO {
     }
 
     /**
-     * This method deletes an Email from the database based on its id.
+     * This method deletes an Email from the database based on its received date.
      *
      * @param email
      * @return the number of rows affected
      */
-    public int delete(int id) throws SQLException {
+    
+    public int delete(String time) throws SQLException {
         int numOfRowsAffected = 0;
+        Timestamp t = Timestamp.valueOf(time);
+        int id = this.getEmailIdFromDb(t);
+        int msgId = this.getMessageIdFromDb(id);
 
-        String query = "DELETE FROM EMAIL WHERE EMAILID = ?";
+        numOfRowsAffected += deleteFromEmail(id);
+        numOfRowsAffected += deleteFromFolder(id);
+        numOfRowsAffected += deleteFromMessage(id);
+        numOfRowsAffected += deleteFromEmailAddress(id);
+        numOfRowsAffected += deleteFromAttachment(msgId);
+        
+        return numOfRowsAffected;
+    }
+
+    private int deleteFromEmail(int id) throws SQLException {
+        int numOfRowsAffected = 0;
+        String deleteFromEmail = "DELETE FROM EMAIL WHERE EMAILID = ?";
+
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(deleteFromEmail);) {
+            ps.setInt(1, id);
+            numOfRowsAffected = ps.executeUpdate();
+        }
+        return numOfRowsAffected;
+
+    }
+
+    private int deleteFromFolder(int id) throws SQLException {
+        int numOfRowsAffected = 0;
+        String deleteFromFolder = "DELETE FROM FOLDER WHERE EMAILID = ?";
+
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(deleteFromFolder);) {
+            ps.setInt(1, id);
+            numOfRowsAffected = ps.executeUpdate();
+        }
+        return numOfRowsAffected;
+    }
+
+    private int deleteFromMessage(int id) throws SQLException {
+        int numOfRowsAffected = 0;
+        String deleteFromMessage = "DELETE FROM MESSAGES WHERE EMAILID = ?";
+
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(deleteFromMessage);) {
+            ps.setInt(1, id);
+            numOfRowsAffected = ps.executeUpdate();
+        }
+        return numOfRowsAffected;
+    }
+
+    private int deleteFromEmailAddress(int id) throws SQLException {
+        int numOfRowsAffected = 0;
+        String deleteFromEmailAddress = "DELETE FROM EMAILADDRESS WHERE EMAILID = ?";
+
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(deleteFromEmailAddress);) {
+            ps.setInt(1, id);
+            numOfRowsAffected = ps.executeUpdate();
+        }
+        return numOfRowsAffected;
+    }
+
+    private int deleteFromAttachment(int id) throws SQLException {
+        int numOfRowsAffected = 0;
+        String query = "DELETE FROM ATTACHMENTS WHERE MESSAGEID = ?";
+
         try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
                 PreparedStatement ps = conn.prepareStatement(query);) {
             ps.setInt(1, id);
@@ -177,11 +242,12 @@ public class EmailDAO {
         return folderName;
 
     }
-    
+
     /**
      * This method will get all the folder names in my database.
+     *
      * @return
-     * @throws SQLException 
+     * @throws SQLException
      */
     public List<String> getAllFolderNames() throws SQLException {
         List<String> folderNames = new ArrayList<>();
@@ -199,19 +265,21 @@ public class EmailDAO {
         }
         return folderNames;
     }
+
     /**
      * This method will get all folder names that are not inbox or sent since
      * those are the default ones.
-     * 
+     *
      * @return
-     * @throws SQLException 
+     * @throws SQLException
      */
     public List<String> getFolderNamesThatAreNotInboxOrSent() throws SQLException {
         List<String> otherThanInboxSent = new ArrayList<String>();
         List<String> folderNames = getAllFolderNames();
-        for(String folderName : folderNames){
-            if(!folderName.equalsIgnoreCase("inbox") && !folderName.equalsIgnoreCase("sent"))
+        for (String folderName : folderNames) {
+            if (!folderName.equalsIgnoreCase("inbox") && !folderName.equalsIgnoreCase("sent")) {
                 otherThanInboxSent.add(folderName);
+            }
         }
         return otherThanInboxSent;
     }

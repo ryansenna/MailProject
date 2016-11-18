@@ -7,19 +7,15 @@ package persistence;
 
 import beans.RyanEmail;
 import business.ActionModule;
-import business.ConfigModule;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.logging.Level;
 import jodd.mail.MailAddress;
 import jodd.util.MimeTypes;
 import org.junit.*;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -191,9 +187,10 @@ public class TestEmailDAO {
     @Test
     @Ignore
     public void testDelete() {
+        Timestamp t = Timestamp.valueOf("2016-11-15 10:13:57");
         int rowAff = 0;
         try {
-            rowAff = em.delete(1);
+            rowAff = em.delete("2016-11-16 14:48:53");// dont exceute this.
         } catch (Exception e) {
             log.error(e.getMessage());
         }

@@ -32,6 +32,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.web.HTMLEditor;
 import javafx.stage.FileChooser;
@@ -52,34 +53,28 @@ public class FXMLEmailPageController {
 
     @FXML
     private TextField toField;
-
     @FXML
     private TextField subjectField;
-
     @FXML
     private TextField ccField;
-
     @FXML
     private TextField bccField;
-
     @FXML
     private HTMLEditor messageField;
-
     @FXML
-    private Button downBtn;
-
+    private Button replyBtn;
+    @FXML
+    private Button deleteBtn;
+    @FXML
+    private AnchorPane sendField;
     @FXML
     private TableView<FXRyanEmail> tableReceiveField;
-
     @FXML
     private TableColumn<FXRyanEmail, String> fromColumnField;
-
     @FXML
     private TableColumn<FXRyanEmail, String> subjectColumnField;
-
     @FXML
     private TableColumn<FXRyanEmail, String> dateColumnField;
-
     @FXML
     private TreeView<String> treeFolders;
 
@@ -88,7 +83,6 @@ public class FXMLEmailPageController {
     private ConfigProperty cp;
     private EmailDAO edao;
     private ActionModule am;
-    private ConfigModule c;
     private RyanEmail sentEmail;
     private List<String> folderNames;
     private Stage stage;
@@ -244,6 +238,11 @@ public class FXMLEmailPageController {
     @FXML
     void onNewFolderClicked(ActionEvent event) {
         setUpPopUpWindow();
+    }
+
+    @FXML
+    void onNewEmailClicked(ActionEvent event) {
+        sendField.setDisable(false);
     }
 
     /**
@@ -443,11 +442,69 @@ public class FXMLEmailPageController {
      */
     private void showDetails(FXRyanEmail newValue) {
         log.error(newValue.toString());
-        this.messageField.setHtmlText(newValue.getMessageField() + "\n"
-                + replaceCid(newValue.getAttachment()));
+        if (newValue.getAttachment().length == 0) {
+            this.messageField.setHtmlText(newValue.getMessageField());
+        } else {
+            this.messageField.setHtmlText(newValue.getMessageField() + "\n"
+                    + replaceCid(newValue.getAttachment()));
+        }
         this.subjectField.setText(newValue.getSubjectField());
         this.toField.setText(newValue.getToField());
+        enableImportantBtns(newValue);
 
+    }
+
+    /**
+     * This method will enable important buttons such as reply and delete to the
+     * user.
+     *
+     * @param email
+     */
+    private void enableImportantBtns(FXRyanEmail email) {
+        this.deleteBtn.setDisable(false);
+        this.replyBtn.setDisable(false);
+
+        //attach listeners to it.
+        deleteBtn.setOnAction(e -> onDeleteClicked(e, email));
+        replyBtn.setOnAction(e -> onReplyClicked(e, email));
+
+    }
+
+    /**
+     * When the user clicks to delete an email, it will delete that email from
+     * the view and from the database.
+     *
+     * @param e the event
+     * @param email the email to be deleted.
+     */
+    private void onDeleteClicked(ActionEvent e, FXRyanEmail email) {
+        try {
+            edao.delete(email.getRcvdDateField());
+            //update the view
+            displayTheTable();
+        } catch (SQLException s) {
+            s.printStackTrace();
+            alertUserMistake(s.getMessage());
+        }
+    }
+
+    /**
+     * When the user clicks to reply, it will switch the TO field, add two
+     * letters to the subject, and append the old message to the new message.
+     *
+     * @param e the event
+     * @param email the email to be changed.
+     */
+    private void onReplyClicked(ActionEvent e, FXRyanEmail email) {
+        String line = "===============================================";
+        if (email.getAttachment().length == 0) {
+            this.messageField.setHtmlText(line + "\n" +email.getMessageField());
+        } else {
+            this.messageField.setHtmlText(line + "\n" +email.getMessageField() + "\n"
+                    + replaceCid(email.getAttachment()));
+        }
+        this.subjectField.setText("Re: " + email.getSubjectField());
+        this.toField.setText(email.getFromField());
     }
 
     /**

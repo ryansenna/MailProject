@@ -172,7 +172,7 @@
                 <version>2.18.1</version>
                 <!-- Turn on tests: false, Turn off tests: true -->
                 <configuration>
-                    <skipTests>true</skipTests>
+                    <skipTests>false</skipTests>
                 </configuration>
             </plugin>
 

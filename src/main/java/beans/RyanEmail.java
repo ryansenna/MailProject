@@ -143,6 +143,7 @@ public class RyanEmail extends Email {
         email.setToField(getAddresses(this.getTo()));
         email.setCcField(getAddresses(this.getCc()));// get bcc addresses
         email.setFolderField(this.getFolder());// the folder from this particular email.
+        email.setRcvdDateField(this.getRcvDate().toString());
         if(this.getAttachments() != null)
             email.setAttachment(this.getAttachments().get(0).toByteArray());// get the attachments.
         

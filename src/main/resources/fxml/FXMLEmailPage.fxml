@@ -20,7 +20,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.HTMLEditor?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxcontrollers.FXMLEmailPageController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxcontrollers.FXMLEmailPageController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -49,7 +49,7 @@
               <items>
                 <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#onRefreshClicked" text="Refresh" />
                   <Button fx:id="newfolderBtn" mnemonicParsing="false" onAction="#onNewFolderClicked" text="New Folder" />
-                  <Button mnemonicParsing="false" text="New Email" />
+                  <Button fx:id="newEmailBtn" mnemonicParsing="false" onAction="#onNewEmailClicked" text="New Email" />
               </items>
             </ToolBar>
          </top>
@@ -63,7 +63,7 @@
             </TableView>
          </right>
          <bottom>
-            <AnchorPane prefHeight="364.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+            <AnchorPane fx:id="sendField" disable="true" prefHeight="364.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
                <children>
                   <HTMLEditor fx:id="messageField" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutY="150.0" prefHeight="220.0" prefWidth="999.0" />
                   <Separator layoutY="152.0" prefHeight="0.0" prefWidth="999.0" />
@@ -118,10 +118,10 @@
                         </HBox>
                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="20.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                            <children>
-                              <Button mnemonicParsing="false" text="Reply" />
-                              <Button mnemonicParsing="false" text="Delete" />
-                              <Button mnemonicParsing="false" onAction="#onAttachmentsClicked" text="Attach!" />
-                              <Button mnemonicParsing="false" onAction="#onSendClicked" text="Send" />
+                              <Button fx:id="replyBtn" disable="true" mnemonicParsing="false" text="Reply" />
+                              <Button fx:id="deleteBtn" disable="true" mnemonicParsing="false" text="Delete" />
+                              <Button fx:id="attachBtn" mnemonicParsing="false" onAction="#onAttachmentsClicked" text="Attach!" />
+                              <Button fx:id="sendBtn" mnemonicParsing="false" onAction="#onSendClicked" text="Send" />
                            </children>
                         </HBox>
                         <HBox prefHeight="31.0" prefWidth="912.0" GridPane.columnIndex="1">
