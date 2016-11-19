@@ -20,25 +20,20 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.web.HTMLEditor?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxcontrollers.FXMLEmailPageController">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fxcontrollers.FXMLEmailPageController">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
           <Menu mnemonicParsing="false" text="File">
             <items>
-              <MenuItem mnemonicParsing="false" text="Close" />
+              <MenuItem fx:id="closeField" mnemonicParsing="false" onAction="#onCloseClicked" text="Close" />
             </items>
           </Menu>
           <Menu mnemonicParsing="false" text="Help">
             <items>
-              <MenuItem mnemonicParsing="false" text="About" />
+              <MenuItem fx:id="aboutField" mnemonicParsing="false" onAction="#onAboutClicked" text="About" />
             </items>
           </Menu>
-            <Menu mnemonicParsing="false" text="About">
-              <items>
-                <MenuItem mnemonicParsing="false" text="Action 1" />
-              </items>
-            </Menu>
         </menus>
       </MenuBar>
    </top>
@@ -58,12 +53,12 @@
               <columns>
                 <TableColumn fx:id="fromColumnField" prefWidth="235.0" text="From" />
                 <TableColumn fx:id="subjectColumnField" prefWidth="560.0" text="Subject" />
-                  <TableColumn fx:id="dateColumnField" prefWidth="105.0" text="Date" />
+                  <TableColumn fx:id="dateColumnField" prefWidth="199.0" text="Date" />
               </columns>
             </TableView>
          </right>
          <bottom>
-            <AnchorPane fx:id="sendField" disable="true" prefHeight="364.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+            <AnchorPane fx:id="sendField" prefHeight="364.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
                <children>
                   <HTMLEditor fx:id="messageField" htmlText="&lt;html&gt;&lt;head&gt;&lt;/head&gt;&lt;body contenteditable=&quot;true&quot;&gt;&lt;/body&gt;&lt;/html&gt;" layoutY="150.0" prefHeight="220.0" prefWidth="999.0" />
                   <Separator layoutY="152.0" prefHeight="0.0" prefWidth="999.0" />
@@ -118,10 +113,11 @@
                         </HBox>
                         <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="20.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
                            <children>
+                              <Button fx:id="saveAttach" disable="true" mnemonicParsing="false" onAction="#onSaveAttachmentsClicked" text="Save Attachments" />
                               <Button fx:id="replyBtn" disable="true" mnemonicParsing="false" text="Reply" />
                               <Button fx:id="deleteBtn" disable="true" mnemonicParsing="false" text="Delete" />
-                              <Button fx:id="attachBtn" mnemonicParsing="false" onAction="#onAttachmentsClicked" text="Attach!" />
-                              <Button fx:id="sendBtn" mnemonicParsing="false" onAction="#onSendClicked" text="Send" />
+                              <Button fx:id="attachBtn" disable="true" mnemonicParsing="false" onAction="#onAttachmentsClicked" text="Attach!" />
+                              <Button fx:id="sendBtn" disable="true" mnemonicParsing="false" onAction="#onSendClicked" text="Send" />
                            </children>
                         </HBox>
                         <HBox prefHeight="31.0" prefWidth="912.0" GridPane.columnIndex="1">

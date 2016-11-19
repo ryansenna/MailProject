@@ -112,12 +112,12 @@ public class EmailDAO {
     }
 
     /**
-     * This method deletes an Email from the database based on its received date.
+     * This method deletes an Email from the database based on its received
+     * date.
      *
      * @param email
      * @return the number of rows affected
      */
-    
     public int delete(String time) throws SQLException {
         int numOfRowsAffected = 0;
         Timestamp t = Timestamp.valueOf(time);
@@ -129,7 +129,7 @@ public class EmailDAO {
         numOfRowsAffected += deleteFromMessage(id);
         numOfRowsAffected += deleteFromEmailAddress(id);
         numOfRowsAffected += deleteFromAttachment(msgId);
-        
+
         return numOfRowsAffected;
     }
 
@@ -278,7 +278,12 @@ public class EmailDAO {
         List<String> folderNames = getAllFolderNames();
         for (String folderName : folderNames) {
             if (!folderName.equalsIgnoreCase("inbox") && !folderName.equalsIgnoreCase("sent")) {
-                otherThanInboxSent.add(folderName);
+                if(otherThanInboxSent.size() != 0){
+                    if(!otherThanInboxSent.contains(folderName))
+                        otherThanInboxSent.add(folderName);
+                }else{// first iteration.. add something.
+                    otherThanInboxSent.add(folderName);
+                }
             }
         }
         return otherThanInboxSent;
@@ -353,6 +358,29 @@ public class EmailDAO {
     }
 
     /**
+     * This method updates the folder name to the database if the user wishes
+     * to.
+     *
+     * @param emailId
+     * @param folderName
+     * @throws SQLException
+     */
+    public void updateFolderName(int emailId, String folderName) throws SQLException {
+        
+        String query = "UPDATE FOLDER SET FOLDERNAME = ? WHERE EMAILID = ?";
+        
+        log.error(c.getUrl() + ", " + c.getDbUsername() + ", " + c.getDbPass());
+        
+        try (Connection conn = DriverManager.getConnection(c.getUrl(), c.getDbUsername(), c.getDbPass());
+                PreparedStatement ps = conn.prepareStatement(query);) {
+            ps.setString(1, folderName);
+            ps.setInt(2, emailId);
+   
+            ps.executeUpdate();
+        }
+    }
+
+    /**
      * This method will save to the database the received emails.
      *
      * @param emails
@@ -402,7 +430,7 @@ public class EmailDAO {
         email.setSentDate(rs.getTimestamp("emailSentDate"));
         email.setRcvDate(rs.getTimestamp("emailRcvdDate"));
         email.setFrom(new MailAddress(rs.getString("senderAddress")));
-
+        email.setEmailId(emailId);
         // get the messages at the messages table
         email.addMessage(getMessageTextFromDb(emailId));
         // get the folder from the folder table.

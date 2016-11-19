@@ -1,5 +1,3 @@
-
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -35,6 +33,7 @@ public class RyanEmail extends Email {
     private Flags flags;
     private int messageNumber;
     private Timestamp rcvDate;
+    private int emailId;
     private final org.slf4j.Logger log = LoggerFactory.getLogger(this.getClass().getName());
 
     public RyanEmail() {
@@ -43,6 +42,7 @@ public class RyanEmail extends Email {
         attachments = new ArrayList<EmailAttachment>();
         flags = new Flags();
         messageNumber = 0;
+        emailId = 0;
         rcvDate = Timestamp.valueOf(LocalDateTime.now());
     }
 
@@ -90,6 +90,10 @@ public class RyanEmail extends Email {
         return folder;
     }
 
+    public int getEmailId() {
+        return emailId;
+    }
+
     public List<ReceivedEmail> getAttachedMessages() {
         return attachedMessages;
     }
@@ -108,6 +112,10 @@ public class RyanEmail extends Email {
 
     public void setFolder(String folder) {
         this.folder = folder;
+    }
+
+    public void setEmailId(int emailId) {
+        this.emailId = emailId;
     }
 
     public void setAttachedMessages(List<ReceivedEmail> attachedMessages) {
@@ -129,14 +137,15 @@ public class RyanEmail extends Email {
     public void setAttachments(List<EmailAttachment> attachments) {
         this.attachments = attachments;
     }
-    public FXRyanEmail toFX(){
-        
+
+    public FXRyanEmail toFX() {
+
         FXRyanEmail email = new FXRyanEmail();
-        
+
         email.setFromField(this.getFrom().getEmail());// set from
         email.setSubjectField(this.getSubject());//set subject
         email.setDateField(this.getRcvDate().toString());// set date
-        
+
         // get the message from this email.
         email.setMessageField(this.getAllMessages().get(0).getContent());
         //getToAddresses
@@ -144,16 +153,17 @@ public class RyanEmail extends Email {
         email.setCcField(getAddresses(this.getCc()));// get bcc addresses
         email.setFolderField(this.getFolder());// the folder from this particular email.
         email.setRcvdDateField(this.getRcvDate().toString());
-        if(this.getAttachments() != null)
+        email.setEmailId(this.getEmailId() + "");
+        if (this.getAttachments() != null) {
             email.setAttachment(this.getAttachments().get(0).toByteArray());// get the attachments.
-        
-        
+        }
+
         return email;
     }
 
     private String getAddresses(MailAddress[] to) {
         String s = "";
-        for(MailAddress a : to){
+        for (MailAddress a : to) {
             s += a.getEmail() + ",";
         }
         //remove the last comma

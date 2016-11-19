@@ -15,6 +15,7 @@ import jodd.mail.EmailAttachment;
  */
 public class FXRyanEmail {
 
+    private StringProperty emailId;
     private StringProperty fromField;
     private StringProperty subjectField;
     private StringProperty dateField;
@@ -27,6 +28,7 @@ public class FXRyanEmail {
 
     public FXRyanEmail() {
         super();
+        this.emailId = new SimpleStringProperty("");
         this.fromField = new SimpleStringProperty("");
         this.subjectField = new SimpleStringProperty("");
         this.dateField = new SimpleStringProperty("");
@@ -36,6 +38,10 @@ public class FXRyanEmail {
         this.ccField = new SimpleStringProperty("");
         this.folderField = new SimpleStringProperty("");
         this.attachment = new byte[0];
+    }
+
+    public String getEmailId() {
+        return emailId.get();
     }
 
     public String getFromField() {
@@ -76,6 +82,10 @@ public class FXRyanEmail {
 
     public void setFromField(String s) {
         fromField.set(s);
+    }
+
+    public void setEmailId(String s) {
+        emailId.set(s);
     }
 
     public void setSubjectField(String s) {
@@ -142,4 +152,7 @@ public class FXRyanEmail {
         return rcvdDateField;
     }
 
+    public StringProperty emailId() {
+        return emailId;
+    }
 }
