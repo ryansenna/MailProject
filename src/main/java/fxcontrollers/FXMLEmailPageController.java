@@ -57,18 +57,17 @@ import properties.FXRyanEmail;
  */
 public class FXMLEmailPageController {
 
-    private byte[] thisAttachment = new byte[0];
-    @FXML
-    private Button attachBtn;
     private ObservableList<FXRyanEmail> allEmails;
     private ActionModule am;
+    @FXML
+    private Button attachBtn;
     @FXML
     private TextField bccField;
     @FXML
     private TextField ccField;
     private ConfigProperty cp;
-    private Stage stage;
     private int ctr = 0;
+    private int ctra = 0;
     @FXML
     private TableColumn<FXRyanEmail, String> dateColumnField;
     @FXML
@@ -86,21 +85,22 @@ public class FXMLEmailPageController {
     @FXML
     private Button replyBtn;
     @FXML
+    private Button saveAttach;
+    @FXML
     private Button sendBtn;
-    private int ctra = 0;
     private RyanEmail sentEmail;
+    private Stage stage;
     @FXML
     private TableColumn<FXRyanEmail, String> subjectColumnField;
     @FXML
     private TextField subjectField;
     @FXML
     private TableView<FXRyanEmail> tableReceiveField;
+    private byte[] thisAttachment = new byte[0];
     @FXML
     private TextField toField;
     @FXML
     private TreeView<String> treeFolders;
-    @FXML
-    private Button saveAttach;
 
     /**
      * Default Constructor.
@@ -117,29 +117,6 @@ public class FXMLEmailPageController {
         folderNames.add("sent");
     }
     
-    @FXML
-    private void onSaveAttachmentsClicked(ActionEvent e){
-        stage = (Stage) bccField.getScene().getWindow();
-        
-        DirectoryChooser dc = new DirectoryChooser();
-        File f = dc.showDialog(stage);
-        ctra++;
-        if(f != null && thisAttachment != null){
-            String attahcmentFolder = f.getAbsolutePath();
-            try(FileOutputStream out = new FileOutputStream(attahcmentFolder + "\\" +"item"+ctra)){
-                out.write(thisAttachment);
-                alertSuccessful("attachment saved !");
-            }catch(IOException ioe){
-                log.error(ioe.getMessage());
-                alertUserMistake("Something went wrong");
-            }catch(Exception ex){
-                log.error(ex.getMessage());
-                alertUserMistake("Something went wrong");
-            }finally{
-                saveAttach.setDisable(true);
-            }
-        }
-    }
 
     /**
      * This method gets and display the table of received emails.
@@ -583,6 +560,29 @@ public class FXMLEmailPageController {
         this.toField.setText(email.getFromField());
         this.sendBtn.setDisable(false);
         this.attachBtn.setDisable(false);
+    }
+    @FXML
+    private void onSaveAttachmentsClicked(ActionEvent e){
+        stage = (Stage) bccField.getScene().getWindow();
+        
+        DirectoryChooser dc = new DirectoryChooser();
+        File f = dc.showDialog(stage);
+        ctra++;
+        if(f != null && thisAttachment != null){
+            String attahcmentFolder = f.getAbsolutePath();
+            try(FileOutputStream out = new FileOutputStream(attahcmentFolder + "\\" +"item"+ctra)){
+                out.write(thisAttachment);
+                alertSuccessful("attachment saved !");
+            }catch(IOException ioe){
+                log.error(ioe.getMessage());
+                alertUserMistake("Something went wrong");
+            }catch(Exception ex){
+                log.error(ex.getMessage());
+                alertUserMistake("Something went wrong");
+            }finally{
+                saveAttach.setDisable(true);
+            }
+        }
     }
 
     /**
